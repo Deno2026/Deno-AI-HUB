@@ -146,6 +146,76 @@
         filter: drop-shadow(0 0 12px rgba(255, 0, 51, 0.22));
       }
 
+      .audio-control {
+        position: fixed;
+        top: 30px;
+        right: 46px;
+        z-index: 74;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        color: rgba(243, 247, 242, 0.7);
+        font: 800 10px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.1em;
+        user-select: none;
+      }
+
+      .audio-control-label {
+        text-shadow: 0 0 14px rgba(0, 255, 145, 0.18);
+        white-space: nowrap;
+      }
+
+      .audio-toggle {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(0, 255, 145, 0.34);
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 50% 50%, rgba(0, 255, 145, 0.14), transparent 58%),
+          rgba(0, 8, 5, 0.62);
+        color: rgba(0, 255, 145, 0.82);
+        box-shadow:
+          0 0 22px rgba(0, 255, 145, 0.12),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+        cursor: pointer;
+        transition:
+          border-color 160ms ease,
+          color 160ms ease,
+          transform 160ms ease,
+          background 160ms ease;
+      }
+
+      .audio-toggle:hover {
+        transform: translateY(-1px);
+        border-color: rgba(0, 255, 145, 0.72);
+        color: var(--green);
+      }
+
+      .audio-toggle svg {
+        width: 19px;
+        height: 19px;
+        display: block;
+      }
+
+      .audio-control.is-playing .audio-toggle {
+        background:
+          radial-gradient(circle at 50% 50%, rgba(0, 255, 145, 0.22), transparent 64%),
+          rgba(0, 16, 9, 0.74);
+        color: var(--green);
+      }
+
+      .audio-control.is-playing .speaker-wave {
+        opacity: 1;
+      }
+
+      .speaker-wave {
+        opacity: 0.28;
+        transition: opacity 160ms ease;
+      }
+
       .vignette {
         position: fixed;
         inset: 0;
@@ -979,6 +1049,24 @@
           height: 22px;
         }
 
+        .audio-control {
+          top: 17px;
+          right: 14px;
+          gap: 4px;
+          font-size: 8px;
+          letter-spacing: 0.06em;
+        }
+
+        .audio-toggle {
+          width: 34px;
+          height: 34px;
+        }
+
+        .audio-toggle svg {
+          width: 17px;
+          height: 17px;
+        }
+
         .page {
           height: auto;
           min-height: 100svh;
@@ -1198,6 +1286,17 @@
         <path fill="#fff" d="m13.6 17.14 8.88-5.14-8.88-5.14v10.28Z"/>
       </svg>
     </a>
+    <div class="audio-control" id="audio-control">
+      <button class="audio-toggle" id="audio-toggle" type="button" aria-label="Play local AI music" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M4 9.2h3.2l4.6-4.1c.7-.6 1.8-.1 1.8.8v12.2c0 .9-1.1 1.4-1.8.8l-4.6-4.1H4c-.6 0-1-.4-1-1V10.2c0-.6.4-1 1-1Z"/>
+          <path class="speaker-wave" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" d="M16.1 8.1a5.1 5.1 0 0 1 0 7.8"/>
+          <path class="speaker-wave" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" d="M18.8 5.8a8.8 8.8 0 0 1 0 12.4"/>
+        </svg>
+      </button>
+      <span class="audio-control-label">AI BGM</span>
+    </div>
+    <audio id="bgm-audio" src="assets/audio/deno-bgm-local-ai-music.wav" preload="metadata" loop></audio>
     <main class="page" data-layout="split">
       <header class="brand" aria-label="DENO AI HUB">
         <div class="deno" aria-hidden="true">
@@ -1622,6 +1721,38 @@
         if (new URLSearchParams(window.location.search).has("mobilePreview")) {
           document.documentElement.classList.add("is-mobile-workbench-preview");
         }
+
+        const audioControl = document.getElementById("audio-control");
+        const audioToggle = document.getElementById("audio-toggle");
+        const bgmAudio = document.getElementById("bgm-audio");
+
+        if (bgmAudio) {
+          bgmAudio.volume = 0.42;
+        }
+
+        function syncAudioState(isPlaying) {
+          audioControl?.classList.toggle("is-playing", isPlaying);
+          audioToggle?.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+          audioToggle?.setAttribute("aria-label", isPlaying ? "Pause local AI music" : "Play local AI music");
+        }
+
+        audioToggle?.addEventListener("click", async () => {
+          if (!bgmAudio) return;
+          if (!bgmAudio.paused) {
+            bgmAudio.pause();
+            syncAudioState(false);
+            return;
+          }
+          try {
+            await bgmAudio.play();
+            syncAudioState(true);
+          } catch (error) {
+            syncAudioState(false);
+          }
+        });
+
+        bgmAudio?.addEventListener("pause", () => syncAudioState(false));
+        bgmAudio?.addEventListener("play", () => syncAudioState(true));
 
         const fonts = [
           { label: "Share Tech Mono", family: "Share Tech Mono", slug: "share-tech-mono" },
