@@ -1,0 +1,88 @@
+{
+  "saved": true,
+  "updatedAt": "2026-05-24T08:30:59.212Z",
+  "source": "draft-h-tuner",
+  "settings": {
+    "layout": "orbit",
+    "fontIndex": 7,
+    "fontLabel": "Inconsolata",
+    "fontFamily": "Inconsolata",
+    "fontSlug": "inconsolata",
+    "fontStack": "\"Inconsolata\", \"Cascadia Mono\", \"Consolas\", monospace",
+    "size": 13,
+    "opacity": 0.34,
+    "softness": 0.7,
+    "content": {
+      "brandText": "DENO AI HUB"
+    },
+    "visual": {
+      "concept": "node-orbit",
+      "label": "02 Node Orbit"
+    },
+    "tuning": {
+      "brand": {
+        "x": 0,
+        "y": 97,
+        "scale": 2.58,
+        "width": 0,
+        "height": 0
+      },
+      "index": {
+        "x": 0,
+        "y": 0,
+        "scale": 1.07,
+        "width": 0,
+        "height": 0
+      },
+      "visual": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "width": 0,
+        "height": 0
+      },
+      "stage": {
+        "x": 0,
+        "y": 0,
+        "scale": 1,
+        "width": 0,
+        "height": 0
+      }
+    },
+    "mobileTuning": {
+      "brandY": 51,
+      "stageY": -103,
+      "menuY": 0,
+      "menuWidth": 340,
+      "menuGap": 0,
+      "menuSize": 36,
+      "brandSize": 86,
+      "brandFontLabel": "Teko",
+      "brandFontFamily": "Teko",
+      "brandFontSlug": "teko",
+      "brandFontStack": "\"Teko\", \"Cascadia Mono\", \"Consolas\", monospace",
+      "visualY": 0,
+      "visualSize": 360,
+      "visualOpacity": 44,
+      "visualBlur": 1.2
+    },
+    "typography": {
+      "brand": {
+        "fontIndex": 42,
+        "fontLabel": "Teko",
+        "fontFamily": "Teko",
+        "fontSlug": "teko",
+        "fontStack": "\"Teko\", \"Cascadia Mono\", \"Consolas\", monospace",
+        "size": 68
+      },
+      "category": {
+        "fontIndex": 22,
+        "fontLabel": "Oxanium",
+        "fontFamily": "Oxanium",
+        "fontSlug": "oxanium",
+        "fontStack": "\"Oxanium\", \"Cascadia Mono\", \"Consolas\", monospace",
+        "size": 46
+      }
+    }
+  }
+}

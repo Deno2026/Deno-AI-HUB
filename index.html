@@ -1,0 +1,2923 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DENO AI HUB</title>
+    <style>
+      :root {
+        --bg: #020403;
+        --fg: #f3f7f2;
+        --muted: #77847b;
+        --dim: #36453e;
+        --green: #00ff91;
+        --green-soft: rgba(0, 255, 145, 0.16);
+        --green-line: rgba(0, 255, 145, 0.24);
+        --green-strong: rgba(0, 255, 145, 0.58);
+        --surface: rgba(4, 14, 10, 0.62);
+        --tune-brand-x: 0px;
+        --tune-brand-y: 0px;
+        --tune-brand-scale: 1;
+        --tune-stage-x: 0px;
+        --tune-stage-y: 0px;
+        --tune-stage-scale: 1;
+        --tune-index-x: 0px;
+        --tune-index-y: 0px;
+        --tune-index-scale: 1;
+        --tune-visual-x: 0px;
+        --tune-visual-y: 0px;
+        --tune-visual-scale: 1;
+        --tune-visual-width: 0px;
+        --tune-visual-height: 0px;
+        --mobile-brand-y: 0px;
+        --mobile-stage-y: 0px;
+        --mobile-menu-y: 0px;
+        --mobile-menu-width: 340px;
+        --mobile-menu-gap: 0px;
+        --mobile-menu-size: 36px;
+        --mobile-brand-size: 44px;
+        --mobile-brand-face: "Teko", "Cascadia Mono", "Consolas", monospace;
+        --mobile-visual-y: 0px;
+        --mobile-visual-size: 360px;
+        --mobile-visual-opacity: 0.44;
+        --mobile-visual-blur: 1.2px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          "Pretendard",
+          "Segoe UI Variable",
+          "Segoe UI",
+          system-ui,
+          sans-serif;
+        letter-spacing: 0;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        display: none;
+      }
+
+      body::before {
+        background:
+          radial-gradient(circle at 50% 16%, rgba(0, 255, 145, 0.22), transparent 290px),
+          radial-gradient(circle at 78% 54%, rgba(0, 255, 145, 0.13), transparent 460px),
+          radial-gradient(circle at 24% 54%, rgba(0, 255, 145, 0.1), transparent 390px),
+          linear-gradient(115deg, transparent 0 30%, rgba(0, 255, 145, 0.07) 40%, transparent 54%),
+          linear-gradient(245deg, transparent 0 46%, rgba(0, 255, 145, 0.055) 58%, transparent 70%),
+          radial-gradient(ellipse at center, transparent 34%, rgba(0, 0, 0, 0.72) 100%);
+        z-index: 0;
+      }
+
+      body::after {
+        z-index: 1;
+        opacity: 0.48;
+        background:
+          repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 4px),
+          repeating-linear-gradient(90deg, rgba(0,255,145,0.026) 0 1px, transparent 1px 72px),
+          linear-gradient(90deg, rgba(0,255,145,0.12), transparent 24%, transparent 72%, rgba(0,255,145,0.12));
+      }
+
+      #binary-rain {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        width: 100vw;
+        height: 100vh;
+        opacity: 0.44;
+        filter: blur(0.25px);
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .scanlines {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.018) 0px,
+          rgba(255,255,255,0.018) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+        mix-blend-mode: overlay;
+      }
+
+      .youtube-mark {
+        position: fixed;
+        top: 28px;
+        left: 52px;
+        z-index: 72;
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        color: #ff0033;
+        opacity: 0.9;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      .youtube-mark:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+      }
+
+      .youtube-mark svg {
+        width: 34px;
+        height: 24px;
+        display: block;
+        filter: drop-shadow(0 0 12px rgba(255, 0, 51, 0.22));
+      }
+
+      .vignette {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background:
+          radial-gradient(120% 80% at 50% 30%, transparent 40%, rgba(0,0,0,0.65) 100%),
+          radial-gradient(60% 40% at 50% 50%, rgba(0,255,136,0.05), transparent 70%);
+      }
+
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 3;
+        height: 100vh;
+        padding: 28px 52px 34px;
+        display: grid;
+        grid-template-rows: 112px minmax(0, 1fr);
+      }
+
+      .brand {
+        display: grid;
+        justify-items: center;
+        align-content: start;
+      }
+
+      .deno {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        color: var(--fg);
+        font-family: var(--brand-face, "Pretendard", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
+        font-size: clamp(40px, 4.2vw, 58px);
+        line-height: 1;
+        font-weight: 760;
+        white-space: nowrap;
+        transform: translate(var(--tune-brand-x), var(--tune-brand-y)) scale(var(--tune-brand-scale));
+        transform-origin: center center;
+      }
+
+      .deno .accent {
+        color: var(--green);
+      }
+
+      .deno.is-editing {
+        min-width: 1ch;
+        cursor: text;
+        outline: 1px solid rgba(0, 255, 145, 0.52);
+        outline-offset: 8px;
+      }
+
+      .brand-line {
+        margin-top: 14px;
+        width: 250px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--green-line), transparent);
+      }
+
+      .stage {
+        width: min(1260px, 92vw);
+        height: 100%;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 430px minmax(520px, 1fr);
+        gap: 66px;
+        align-items: center;
+        transform: translate(var(--tune-stage-x), var(--tune-stage-y)) scale(var(--tune-stage-scale));
+        transform-origin: center center;
+      }
+
+      .index {
+        display: grid;
+        gap: 0;
+        transform: translate(var(--tune-index-x), var(--tune-index-y)) scale(var(--tune-index-scale));
+        transform-origin: center center;
+      }
+
+      .entry {
+        position: relative;
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 24px;
+        min-height: 106px;
+        align-items: center;
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid var(--green-line);
+      }
+
+      .entry:first-child {
+        border-top: 1px solid var(--green-line);
+      }
+
+      .entry::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 50%;
+        width: 0;
+        height: 1px;
+        background: var(--green);
+        transition: width 180ms ease;
+      }
+
+      .entry:hover::after {
+        width: 78px;
+      }
+
+      .num {
+        color: var(--green);
+        font-family: "Cascadia Mono", "Consolas", monospace;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .entry strong {
+        display: block;
+        color: var(--fg);
+        font-family: var(--entry-face, "Pretendard", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
+        font-size: 37px;
+        line-height: 1;
+        font-weight: 760;
+      }
+
+      .entry .meta {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .visual {
+        position: relative;
+        width: calc(100% + var(--tune-visual-width));
+        height: calc(466px + var(--tune-visual-height));
+        background:
+          linear-gradient(180deg, rgba(0,255,145,0.04), transparent 42%),
+          linear-gradient(135deg, rgba(0,255,145,0.12), transparent 42%),
+          var(--surface);
+        border: 1px solid var(--green-strong);
+        box-shadow:
+          0 0 80px rgba(0, 255, 145, 0.09),
+          inset 0 0 0 1px rgba(255,255,255,0.025);
+        overflow: hidden;
+        transform: translate(var(--tune-visual-x), var(--tune-visual-y)) scale(var(--tune-visual-scale));
+        transform-origin: center center;
+      }
+
+      .visual::before {
+        content: "";
+        position: absolute;
+        inset: 26px;
+        border: 1px solid rgba(0,255,145,0.16);
+      }
+
+      .visual::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, transparent 0 33%, rgba(0,255,145,0.08) 33.2%, transparent 33.5%, transparent 66%, rgba(0,255,145,0.08) 66.2%, transparent 66.5%),
+          linear-gradient(0deg, transparent 0 49.8%, rgba(0,255,145,0.16) 50%, transparent 50.2%),
+          radial-gradient(circle at 50% 52%, rgba(0,255,145,0.36), transparent 175px);
+        opacity: 0.72;
+      }
+
+      .image-well {
+        position: absolute;
+        inset: 54px;
+        border: 1px solid rgba(0,255,145,0.18);
+        background:
+          radial-gradient(circle at center, rgba(0,255,145,0.18), transparent 230px),
+          linear-gradient(135deg, rgba(255,255,255,0.035), transparent);
+        overflow: hidden;
+      }
+
+      .image-well::before,
+      .image-well::after {
+        content: "";
+        position: absolute;
+        z-index: 2;
+        inset: 50%;
+        width: 160px;
+        height: 1px;
+        background: rgba(0,255,145,0.38);
+        transform: translate(-50%, -50%);
+      }
+
+      .image-well::after {
+        width: 1px;
+        height: 160px;
+      }
+
+      .visual-canvas {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        display: block;
+        opacity: 0.94;
+      }
+
+      .corner {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-color: var(--green);
+        opacity: 0.9;
+      }
+
+      .corner.tl {
+        top: 18px;
+        left: 18px;
+        border-top: 1px solid;
+        border-left: 1px solid;
+      }
+
+      .corner.tr {
+        top: 18px;
+        right: 18px;
+        border-top: 1px solid;
+        border-right: 1px solid;
+      }
+
+      .corner.bl {
+        bottom: 18px;
+        left: 18px;
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+      }
+
+      .corner.br {
+        bottom: 18px;
+        right: 18px;
+        border-bottom: 1px solid;
+        border-right: 1px solid;
+      }
+
+      .page[data-layout="wall"] {
+        grid-template-rows: 104px minmax(0, 1fr);
+      }
+
+      .page[data-layout="wall"] .stage {
+        position: relative;
+        width: min(1180px, 92vw);
+        grid-template-columns: 1fr;
+        gap: 0;
+        align-items: stretch;
+      }
+
+      .page[data-layout="wall"] .index {
+        position: relative;
+        z-index: 2;
+        height: min(600px, 72vh);
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        border: 1px solid rgba(0, 255, 145, 0.2);
+        background: rgba(0, 255, 145, 0.14);
+      }
+
+      .page[data-layout="wall"] .entry {
+        min-height: 0;
+        grid-template-columns: 46px 1fr;
+        padding: 32px 34px;
+        align-items: end;
+        border: 0;
+        background: rgba(2, 9, 6, 0.72);
+      }
+
+      .page[data-layout="wall"] .entry:first-child {
+        border-top: 0;
+      }
+
+      .page[data-layout="wall"] .entry strong {
+        font-size: clamp(36px, 4.4vw, 64px);
+      }
+
+      .page[data-layout="wall"] .entry .meta {
+        font-size: 14px;
+      }
+
+      .page[data-layout="wall"] .visual {
+        position: absolute;
+        z-index: 1;
+        left: 50%;
+        top: 50%;
+        width: calc(min(520px, 42vw) + var(--tune-visual-width));
+        height: calc(min(360px, 42vh) + var(--tune-visual-height));
+        transform: translate(calc(-50% + var(--tune-visual-x)), calc(-50% + var(--tune-visual-y))) scale(var(--tune-visual-scale));
+        opacity: 0.56;
+      }
+
+      .page[data-layout="orbit"] .stage {
+        position: relative;
+        width: min(1220px, 92vw);
+        grid-template-columns: 1fr;
+        align-items: center;
+      }
+
+      .page[data-layout="orbit"] .visual {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: calc(min(560px, 42vw) + var(--tune-visual-width));
+        height: calc(min(560px, 62vh) + var(--tune-visual-height));
+        transform: translate(calc(-50% + var(--tune-visual-x)), calc(-50% + var(--tune-visual-y))) scale(var(--tune-visual-scale));
+        border-radius: 999px;
+        opacity: 0.82;
+      }
+
+      .page[data-layout="orbit"] .visual::before {
+        inset: 44px;
+        border-radius: 999px;
+      }
+
+      .page[data-layout="orbit"] .visual::after {
+        border-radius: 999px;
+      }
+
+      .page[data-layout="orbit"] .image-well {
+        inset: 74px;
+        border-radius: 999px;
+      }
+
+      .page[data-layout="orbit"] .index {
+        position: relative;
+        z-index: 2;
+        display: block;
+        width: 100%;
+        height: min(560px, 62vh);
+      }
+
+      .page[data-layout="orbit"] .entry {
+        position: absolute;
+        width: min(360px, 31vw);
+        min-height: 96px;
+        border-top: 1px solid rgba(0, 255, 145, 0.24);
+        border-bottom: 1px solid rgba(0, 255, 145, 0.24);
+        background: linear-gradient(90deg, rgba(2, 9, 6, 0.76), rgba(2, 9, 6, 0.28));
+      }
+
+      .page[data-layout="orbit"] .entry:first-child {
+        border-top: 1px solid rgba(0, 255, 145, 0.24);
+      }
+
+      .page[data-layout="orbit"] .entry:nth-child(1) {
+        left: 0;
+        top: 12%;
+      }
+
+      .page[data-layout="orbit"] .entry:nth-child(2) {
+        right: 0;
+        top: 12%;
+      }
+
+      .page[data-layout="orbit"] .entry:nth-child(3) {
+        left: 0;
+        bottom: 12%;
+      }
+
+      .page[data-layout="orbit"] .entry:nth-child(4) {
+        right: 0;
+        bottom: 12%;
+      }
+
+      .page[data-layout="orbit"] .entry:nth-child(2),
+      .page[data-layout="orbit"] .entry:nth-child(4) {
+        background: linear-gradient(270deg, rgba(2, 9, 6, 0.76), rgba(2, 9, 6, 0.28));
+      }
+
+      .page[data-layout="orbit"] .entry strong {
+        font-size: clamp(28px, 2.4vw, 40px);
+      }
+
+      .entry.is-later {
+        border-color: rgba(164, 174, 170, 0.16);
+        background: linear-gradient(90deg, rgba(22, 25, 24, 0.62), rgba(5, 7, 7, 0.18));
+        opacity: 0.58;
+      }
+
+      .entry.is-later::after {
+        background: rgba(176, 188, 182, 0.42);
+      }
+
+      .entry.is-later:hover::after {
+        width: 0;
+      }
+
+      .entry.is-later .num {
+        color: rgba(170, 180, 176, 0.48);
+        text-shadow: none;
+      }
+
+      .entry.is-later strong {
+        color: rgba(218, 224, 220, 0.58);
+        text-shadow: none;
+      }
+
+      .entry.is-tool-active {
+        border-color: rgba(0, 255, 145, 0.58);
+      }
+
+      .entry.is-tool-active strong {
+        color: var(--green);
+      }
+
+      .page[data-layout="orbit"] .entry.is-later {
+        border-top-color: rgba(164, 174, 170, 0.16);
+        border-bottom-color: rgba(164, 174, 170, 0.16);
+      }
+
+      .page[data-layout="orbit"] .entry.is-later:nth-child(4) {
+        background: linear-gradient(270deg, rgba(22, 25, 24, 0.62), rgba(5, 7, 7, 0.18));
+      }
+
+      .tools-panel {
+        position: absolute;
+        z-index: 18;
+        left: 50%;
+        top: 50%;
+        width: min(530px, 44vw);
+        padding: 18px;
+        border: 1px solid rgba(0, 255, 145, 0.42);
+        background:
+          linear-gradient(180deg, rgba(0, 255, 145, 0.08), transparent 46%),
+          rgba(0, 6, 4, 0.86);
+        box-shadow:
+          0 0 42px rgba(0, 255, 145, 0.14),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+        backdrop-filter: blur(10px);
+        transform: translate(-50%, -50%) scale(0.96);
+        transform-origin: center center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      .tools-panel.is-open {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .tools-panel[hidden] {
+        display: block;
+      }
+
+      .tools-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 12px;
+        color: var(--green);
+        font: 800 12px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.16em;
+      }
+
+      .tools-panel-close {
+        width: 26px;
+        height: 26px;
+        border: 1px solid rgba(0, 255, 145, 0.28);
+        background: rgba(0, 255, 145, 0.08);
+        color: var(--green);
+        font: 800 17px/1 "Cascadia Mono", "Consolas", monospace;
+        cursor: pointer;
+      }
+
+      .tool-link-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .tool-link {
+        display: grid;
+        gap: 7px;
+        min-height: 86px;
+        padding: 16px 17px;
+        border: 1px solid rgba(0, 255, 145, 0.2);
+        background: rgba(0, 0, 0, 0.42);
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .tool-link:hover {
+        border-color: rgba(0, 255, 145, 0.56);
+        background: rgba(0, 255, 145, 0.08);
+      }
+
+      .tool-link strong {
+        color: var(--fg);
+        font: 800 22px/1 "Oxanium", "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .tool-link span {
+        color: rgba(218, 224, 220, 0.68);
+        font: 12px/1.42 "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .font-lab {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 80;
+        width: min(270px, calc(100vw - 36px));
+        border: 1px solid rgba(0, 255, 145, 0.24);
+        background: rgba(2, 8, 5, 0.78);
+        color: rgba(243, 247, 242, 0.92);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+        font-family: "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .font-lab.is-collapsed {
+        width: auto;
+      }
+
+      .font-lab-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(0, 255, 145, 0.16);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+      }
+
+      .font-lab-toggle {
+        width: 24px;
+        height: 24px;
+        border: 1px solid rgba(0, 255, 145, 0.28);
+        background: rgba(0, 255, 145, 0.08);
+        color: var(--green);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .font-lab-body {
+        display: grid;
+        gap: 12px;
+        padding: 12px;
+        max-height: min(760px, calc(100vh - 92px));
+        overflow: auto;
+      }
+
+      .font-lab.is-collapsed .font-lab-body,
+      .font-lab.is-collapsed .font-lab-head span {
+        display: none;
+      }
+
+      .resolved-control {
+        display: none !important;
+      }
+
+      .font-field {
+        display: grid;
+        gap: 6px;
+        font-size: 10px;
+        color: rgba(243, 247, 242, 0.62);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .font-field select,
+      .font-field textarea,
+      .font-field input {
+        width: 100%;
+        accent-color: var(--green);
+      }
+
+      .font-field select,
+      .font-field textarea {
+        min-height: 34px;
+        border: 1px solid rgba(0, 255, 145, 0.22);
+        background: rgba(0, 0, 0, 0.58);
+        color: rgba(243, 247, 242, 0.9);
+        padding: 0 9px;
+        font: 12px/1.2 "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .font-field textarea {
+        min-height: 58px;
+        resize: vertical;
+        padding: 9px;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .select-current {
+        color: var(--green);
+        font: 800 10px/1.35 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .visual-choice-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .visual-choice {
+        position: relative;
+        aspect-ratio: 1;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid rgba(0, 255, 145, 0.18);
+        background: rgba(0, 0, 0, 0.66);
+        cursor: pointer;
+      }
+
+      .visual-choice canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .visual-choice::after {
+        content: attr(data-index);
+        position: absolute;
+        left: 6px;
+        bottom: 5px;
+        color: rgba(243, 247, 242, 0.72);
+        font: 800 9px/1 "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .visual-choice.is-selected {
+        border-color: var(--green);
+        box-shadow: 0 0 0 1px rgba(0, 255, 145, 0.28), 0 0 18px rgba(0, 255, 145, 0.18);
+      }
+
+      .font-row {
+        display: grid;
+        grid-template-columns: 1fr 42px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .font-row output {
+        color: var(--green);
+        font-size: 10px;
+        text-align: right;
+      }
+
+      .font-row.mobile-tune-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .font-row.mobile-tune-row input[type="range"] {
+        order: 3;
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+      }
+
+      .font-row.mobile-tune-row output {
+        display: none;
+      }
+
+      .mobile-nudge {
+        width: 30px;
+        min-width: 30px;
+        flex: 0 0 30px;
+        height: 28px;
+        border: 1px solid rgba(0, 255, 145, 0.28);
+        background: rgba(0, 255, 145, 0.08);
+        color: var(--green);
+        font: 800 14px/1 "Cascadia Mono", "Consolas", monospace;
+        cursor: pointer;
+      }
+
+      .font-row.mobile-tune-row .mobile-nudge:first-child {
+        order: 1;
+      }
+
+      .font-row.mobile-tune-row .mobile-nudge:last-child {
+        order: 2;
+      }
+
+      .mobile-nudge:active {
+        background: rgba(0, 255, 145, 0.18);
+      }
+
+      .current-choice {
+        display: grid;
+        gap: 4px;
+        padding: 9px 10px;
+        border: 1px solid rgba(0, 255, 145, 0.16);
+        background: rgba(0, 255, 145, 0.055);
+        font: 10px/1.45 "Cascadia Mono", "Consolas", monospace;
+        color: rgba(243, 247, 242, 0.58);
+      }
+
+      .current-choice b {
+        color: var(--green);
+        font-size: 11px;
+      }
+
+      .font-save {
+        display: grid;
+        grid-template-columns: 84px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .font-save button {
+        min-height: 32px;
+        border: 1px solid rgba(0, 255, 145, 0.4);
+        background: rgba(0, 255, 145, 0.14);
+        color: var(--green);
+        font: 800 11px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+      }
+
+      .font-save output {
+        min-width: 0;
+        color: rgba(243, 247, 242, 0.54);
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      .tune-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+      }
+
+      .tune-buttons button {
+        min-height: 28px;
+        border: 1px solid rgba(0, 255, 145, 0.22);
+        background: rgba(0, 255, 145, 0.07);
+        color: rgba(243, 247, 242, 0.78);
+        font: 800 10px/1 "Cascadia Mono", "Consolas", monospace;
+        cursor: pointer;
+      }
+
+      .tune-visual-only.is-hidden {
+        display: none;
+      }
+
+      .tune-active {
+        outline: 1px dashed rgba(0, 255, 145, 0.82);
+        outline-offset: 8px;
+        cursor: move;
+      }
+
+      body[data-tune-target="visual"] .index {
+        pointer-events: none;
+      }
+
+      body[data-tune-target="visual"] .visual {
+        z-index: 8;
+      }
+
+      body[data-tune-target="index"] .index,
+      body[data-tune-target="stage"] .stage,
+      body[data-tune-target="brand"] .deno {
+        z-index: 8;
+      }
+
+      body.is-dragging,
+      body.is-dragging * {
+        cursor: grabbing !important;
+        user-select: none;
+      }
+
+      body.is-final-preview .font-lab {
+        display: none;
+      }
+
+      body.is-final-preview .tune-active {
+        outline: 0;
+        cursor: default;
+      }
+
+      @media (max-width: 820px) {
+        html,
+        body {
+          min-height: 100%;
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+
+        html.is-mobile-workbench-preview,
+        html.is-mobile-workbench-preview body {
+          scrollbar-width: none;
+        }
+
+        html.is-mobile-workbench-preview body::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+
+        #binary-rain {
+          opacity: 0.32;
+        }
+
+        .scanlines {
+          opacity: 0.74;
+        }
+
+        .youtube-mark {
+          top: 16px;
+          left: 16px;
+          width: 38px;
+          height: 38px;
+        }
+
+        .youtube-mark svg {
+          width: 30px;
+          height: 22px;
+        }
+
+        .page {
+          height: auto;
+          min-height: 100svh;
+          padding: 24px 12px 28px;
+          display: grid;
+          grid-template-rows: auto minmax(0, 1fr);
+          gap: 16px;
+        }
+
+        .brand {
+          align-content: center;
+          padding-top: 42px;
+        }
+
+        .deno {
+          max-width: 100%;
+          justify-content: center;
+          gap: 5px;
+          flex-wrap: nowrap;
+          font-family: var(--mobile-brand-face) !important;
+          font-size: var(--mobile-brand-size) !important;
+          line-height: 0.9;
+          white-space: nowrap;
+          transform: translateY(var(--mobile-brand-y)) !important;
+        }
+
+        .deno span {
+          white-space: nowrap;
+        }
+
+        .brand-line {
+          width: min(190px, 48vw);
+          margin-top: 8px;
+        }
+
+        .stage {
+          position: relative;
+          width: 100%;
+          height: auto;
+          min-height: calc(100svh - 156px);
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          grid-template-areas: "stack";
+          place-items: center;
+          gap: 0;
+          transform: translateY(var(--mobile-stage-y)) !important;
+        }
+
+        .page[data-layout="orbit"] .stage {
+          width: 100%;
+          grid-template-columns: 1fr !important;
+        }
+
+        .index,
+        .page[data-layout="orbit"] .index {
+          grid-area: stack;
+          position: relative;
+          z-index: 2;
+          display: grid !important;
+          grid-template-columns: 1fr;
+          gap: var(--mobile-menu-gap);
+          width: min(var(--mobile-menu-width), 92vw);
+          height: auto;
+          transform: translateY(var(--mobile-menu-y)) !important;
+        }
+
+        .entry,
+        .page[data-layout="orbit"] .entry {
+          position: relative !important;
+          left: auto !important;
+          right: auto !important;
+          top: auto !important;
+          bottom: auto !important;
+          width: 100%;
+          min-width: 0;
+          min-height: 78px;
+          box-sizing: border-box;
+          grid-template-columns: 34px minmax(0, 1fr);
+          gap: 12px;
+          padding: 13px 4px;
+          align-items: center;
+          background: linear-gradient(90deg, rgba(0, 0, 0, 0.48), rgba(0, 255, 145, 0.045), rgba(0, 0, 0, 0.18));
+        }
+
+        .entry > div {
+          min-width: 0;
+        }
+
+        .entry:first-child,
+        .page[data-layout="orbit"] .entry:first-child {
+          border-top: 1px solid rgba(0, 255, 145, 0.24);
+        }
+
+        .entry::after {
+          display: none;
+        }
+
+        .num {
+          font-size: 10px;
+        }
+
+        .entry strong {
+          max-width: 100%;
+          font-size: var(--mobile-menu-size) !important;
+          line-height: 0.92;
+          white-space: nowrap;
+        }
+
+        .visual,
+        .page[data-layout="orbit"] .visual {
+          grid-area: stack;
+          z-index: 1;
+          pointer-events: none;
+          position: absolute !important;
+          left: 50% !important;
+          top: 50% !important;
+          width: min(92vw, var(--mobile-visual-size)) !important;
+          height: min(92vw, var(--mobile-visual-size)) !important;
+          margin: 0;
+          transform: translate(-50%, calc(-50% + var(--mobile-visual-y))) !important;
+          border-radius: 999px;
+          opacity: var(--mobile-visual-opacity);
+          filter: blur(var(--mobile-visual-blur)) saturate(0.9);
+        }
+
+        .visual::before,
+        .page[data-layout="orbit"] .visual::before {
+          inset: 28px;
+          border-radius: 999px;
+        }
+
+        .image-well,
+        .page[data-layout="orbit"] .image-well {
+          inset: 40px;
+          border-radius: 999px;
+        }
+
+        .image-well::before {
+          width: 102px;
+        }
+
+        .image-well::after {
+          height: 102px;
+        }
+
+        .tools-panel {
+          position: fixed !important;
+          left: 14px !important;
+          right: 14px !important;
+          top: 50% !important;
+          width: calc(100vw - 28px) !important;
+          max-width: calc(100vw - 28px);
+          max-height: calc(100svh - 34px);
+          box-sizing: border-box;
+          padding: 14px;
+          overflow: auto;
+          background:
+            linear-gradient(180deg, rgba(0, 255, 145, 0.08), transparent 46%),
+            rgba(0, 6, 4, 0.93);
+          transform: translateY(-50%) scale(0.96);
+        }
+
+        .tools-panel.is-open {
+          transform: translateY(-50%) scale(1);
+        }
+
+        .tool-link-list {
+          min-width: 0;
+        }
+
+        .tool-link {
+          width: 100%;
+          min-height: 72px;
+          padding: 12px;
+          min-width: 0;
+          box-sizing: border-box;
+          overflow: hidden;
+        }
+
+        .tool-link strong {
+          font-size: clamp(18px, 5.6vw, 22px);
+          line-height: 1.05;
+          min-width: 0;
+          max-width: min(270px, calc(100vw - 104px));
+        }
+
+        .tool-link span {
+          display: block;
+          font-size: 10px;
+          line-height: 1.38;
+          min-width: 0;
+          max-width: min(270px, calc(100vw - 104px));
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+
+        .font-lab {
+          right: 10px;
+          bottom: 10px;
+          width: calc(100vw - 20px);
+        }
+
+        .font-lab-body {
+          max-height: min(680px, calc(100svh - 86px));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="binary-rain" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+    <a class="youtube-mark" href="https://www.youtube.com/@Denoise-AI" target="_blank" rel="noreferrer" aria-label="YouTube">
+      <svg viewBox="0 0 34 24" aria-hidden="true">
+        <path fill="currentColor" d="M33.28 3.75a4.25 4.25 0 0 0-2.99-3.02C27.66 0 17 0 17 0S6.34 0 3.71.73A4.25 4.25 0 0 0 .72 3.75C0 6.42 0 12 0 12s0 5.58.72 8.25a4.25 4.25 0 0 0 2.99 3.02C6.34 24 17 24 17 24s10.66 0 13.29-.73a4.25 4.25 0 0 0 2.99-3.02C34 17.58 34 12 34 12s0-5.58-.72-8.25Z"/>
+        <path fill="#fff" d="m13.6 17.14 8.88-5.14-8.88-5.14v10.28Z"/>
+      </svg>
+    </a>
+    <main class="page" data-layout="split">
+      <header class="brand" aria-label="DENO AI HUB">
+        <div class="deno" aria-hidden="true">
+          <span>DENO AI</span><span class="accent">HUB</span>
+        </div>
+        <div class="brand-line" aria-hidden="true"></div>
+      </header>
+
+      <section class="stage" aria-label="DENO AI HUB">
+        <nav class="index" aria-label="DENO category index">
+          <a class="entry is-later" href="#">
+            <b class="num">01</b>
+            <div><strong>AI Agent</strong></div>
+          </a>
+          <a class="entry comfy-entry" href="#comfyui" aria-controls="comfyui-panel" aria-expanded="false">
+            <b class="num">02</b>
+            <div><strong>ComfyUI</strong></div>
+          </a>
+          <a class="entry tools-entry" href="#tools" aria-controls="tools-panel" aria-expanded="false">
+            <b class="num">03</b>
+            <div><strong>Tools</strong></div>
+          </a>
+          <a class="entry is-later" href="#">
+            <b class="num">04</b>
+            <div><strong>Creators</strong></div>
+          </a>
+        </nav>
+
+        <aside class="visual" aria-label="future generated image area">
+          <i class="corner tl"></i>
+          <i class="corner tr"></i>
+          <i class="corner bl"></i>
+          <i class="corner br"></i>
+          <div class="image-well" aria-hidden="true">
+            <canvas class="visual-canvas" id="visual-canvas" width="900" height="900"></canvas>
+          </div>
+        </aside>
+
+        <aside class="tools-panel" id="tools-panel" hidden aria-label="DENO Tools">
+          <div class="tools-panel-head">
+            <span>DENO TOOLS</span>
+            <button class="tools-panel-close" id="tools-panel-close" type="button" aria-label="Close tools panel">×</button>
+          </div>
+          <div class="tool-link-list">
+            <a class="tool-link" href="https://deno2026.github.io/comfyui-deno-custom-nodes/video-compare/" target="_blank" rel="noreferrer" data-tool="video-compare">
+              <strong>DENO Video Compare</strong>
+              <span>compare two rendered videos with slider, side-by-side, difference, and toggle views.</span>
+            </a>
+            <a class="tool-link" href="https://deno2026.github.io/comfyui-deno-custom-nodes/video-to-gif/" target="_blank" rel="noreferrer" data-tool="video-to-gif-webp">
+              <strong>DENO Video to GIF/WebP</strong>
+              <span>trim, crop, resize, and export short clips as GIF or smaller WebP files.</span>
+            </a>
+            <a class="tool-link" href="https://github.com/Deno2026/Windows-Installer-for-Deno-AI-Studio" target="_blank" rel="noreferrer" data-tool="ai-studio-installer">
+              <strong>DENO AI Studio Installer</strong>
+              <span>Windows installer for Deno AI Studio.</span>
+            </a>
+          </div>
+        </aside>
+
+        <aside class="tools-panel" id="comfyui-panel" hidden aria-label="DENO ComfyUI">
+          <div class="tools-panel-head">
+            <span>DENO COMFYUI</span>
+            <button class="tools-panel-close" id="comfyui-panel-close" type="button" aria-label="Close ComfyUI panel">×</button>
+          </div>
+          <div class="tool-link-list">
+            <a class="tool-link" href="https://drive.google.com/drive/u/0/folders/1Aq9yzvSMpM9EOQMIVEIwyrXd3LmcM5D6" target="_blank" rel="noreferrer" data-tool="comfyui-workflow">
+              <strong>Workflow</strong>
+              <span>Google Drive</span>
+            </a>
+            <a class="tool-link" href="https://github.com/Deno2026/comfyui-deno-custom-nodes" target="_blank" rel="noreferrer" data-tool="deno-custom-node">
+              <strong>Deno Custom Nodes</strong>
+              <span>GitHub</span>
+            </a>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <aside class="font-lab" aria-label="Background font lab">
+      <div class="font-lab-head">
+        <span>DRAFT LAB</span>
+        <button class="font-lab-toggle" id="font-lab-toggle" type="button" aria-label="Toggle font lab">-</button>
+      </div>
+      <div class="font-lab-body">
+        <label class="font-field resolved-control">
+          Layout
+          <select id="layout-select">
+            <option value="split">Split Index + Visual</option>
+            <option value="wall">2x2 Gate Wall</option>
+            <option value="orbit">Center Core Orbit</option>
+          </select>
+        </label>
+        <div class="current-choice">
+          <span>Current wording: <b id="current-wording-choice">DENO AI HUB</b></span>
+          <span>Current top: <b id="current-top-choice">-</b></span>
+          <span>Current category: <b id="current-category-choice">-</b></span>
+          <span>Current visual: <b id="current-visual-choice">-</b></span>
+          <span>Current tune: <b id="current-tune-choice">-</b></span>
+          <span>Current mobile: <b id="current-mobile-choice">-</b></span>
+        </div>
+        <div class="font-field">
+          Mobile tune
+          <span class="select-current" id="current-mobile-label">-</span>
+          <label class="font-field">
+            Logo Y
+            <span class="font-row">
+              <input id="mobile-brand-y" type="range" min="-160" max="220" step="1" value="0">
+              <output id="mobile-brand-y-output">0</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Whole Y
+            <span class="font-row">
+              <input id="mobile-stage-y" type="range" min="-260" max="320" step="1" value="0">
+              <output id="mobile-stage-y-output">0</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Menu Y
+            <span class="font-row">
+              <input id="mobile-menu-y" type="range" min="-240" max="260" step="1" value="0">
+              <output id="mobile-menu-y-output">0</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Menu width
+            <span class="font-row">
+              <input id="mobile-menu-width" type="range" min="230" max="390" step="1" value="340">
+              <output id="mobile-menu-width-output">340</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Menu gap
+            <span class="font-row">
+              <input id="mobile-menu-gap" type="range" min="-10" max="28" step="1" value="0">
+              <output id="mobile-menu-gap-output">0</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Menu size
+            <span class="font-row">
+              <input id="mobile-menu-size" type="range" min="22" max="52" step="1" value="36">
+              <output id="mobile-menu-size-output">36</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Circle Y
+            <span class="font-row">
+              <input id="mobile-visual-y" type="range" min="-220" max="240" step="1" value="0">
+              <output id="mobile-visual-y-output">0</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Circle size
+            <span class="font-row">
+              <input id="mobile-visual-size" type="range" min="220" max="520" step="1" value="360">
+              <output id="mobile-visual-size-output">360</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Circle opacity
+            <span class="font-row">
+              <input id="mobile-visual-opacity" type="range" min="10" max="90" step="1" value="44">
+              <output id="mobile-visual-opacity-output">44</output>
+            </span>
+          </label>
+          <label class="font-field">
+            Circle blur
+            <span class="font-row">
+              <input id="mobile-visual-blur" type="range" min="0" max="5" step="0.1" value="1.2">
+              <output id="mobile-visual-blur-output">1.2</output>
+            </span>
+          </label>
+          <div class="tune-buttons">
+            <button id="mobile-tune-reset" type="button">RESET MOBILE</button>
+          </div>
+        </div>
+        <div class="font-field">
+          Center image
+          <span class="select-current" id="current-visual-label">-</span>
+          <div class="visual-choice-grid" id="visual-choice-grid"></div>
+        </div>
+        <label class="font-field">
+          Tune target
+          <span class="select-current" id="current-tune-target-label">-</span>
+          <select id="tune-target-select">
+            <option value="brand">Top logo</option>
+            <option value="index">Category block</option>
+            <option value="visual">Visual frame</option>
+            <option value="stage">Whole stage</option>
+          </select>
+        </label>
+        <label class="font-field">
+          X position
+          <span class="font-row">
+            <input id="tune-x" type="range" min="-900" max="900" step="1" value="0">
+            <output id="tune-x-output">0</output>
+          </span>
+        </label>
+        <label class="font-field">
+          Y position
+          <span class="font-row">
+            <input id="tune-y" type="range" min="-700" max="700" step="1" value="0">
+            <output id="tune-y-output">0</output>
+          </span>
+        </label>
+        <label class="font-field">
+          Scale
+          <span class="font-row">
+            <input id="tune-scale" type="range" min="0.2" max="3" step="0.01" value="1">
+            <output id="tune-scale-output">1.00</output>
+          </span>
+        </label>
+        <label class="font-field tune-visual-only">
+          Frame width
+          <span class="font-row">
+            <input id="tune-width" type="range" min="-900" max="1400" step="1" value="0">
+            <output id="tune-width-output">0</output>
+          </span>
+        </label>
+        <label class="font-field tune-visual-only">
+          Frame height
+          <span class="font-row">
+            <input id="tune-height" type="range" min="-700" max="1200" step="1" value="0">
+            <output id="tune-height-output">0</output>
+          </span>
+        </label>
+        <div class="tune-buttons">
+          <button id="tune-center-x" type="button">CENTER X</button>
+          <button id="tune-center-y" type="button">CENTER Y</button>
+          <button id="tune-reset" type="button">RESET</button>
+        </div>
+        <label class="font-field">
+          Top wording
+          <textarea id="brand-text-input" rows="2" spellcheck="false">DENO AI HUB</textarea>
+        </label>
+        <label class="font-field">
+          Top text
+          <span class="select-current" id="current-top-font-label">-</span>
+          <select id="brand-font-select"></select>
+        </label>
+        <label class="font-field">
+          Top size
+          <span class="font-row">
+            <input id="brand-size" type="range" min="12" max="180" step="1" value="48">
+            <output id="brand-size-output">48</output>
+          </span>
+        </label>
+        <label class="font-field">
+          Category text
+          <span class="select-current" id="current-category-font-label">-</span>
+          <select id="category-font-select"></select>
+        </label>
+        <label class="font-field">
+          Category size
+          <span class="font-row">
+            <input id="category-size" type="range" min="12" max="140" step="1" value="37">
+            <output id="category-size-output">37</output>
+          </span>
+        </label>
+        <label class="font-field resolved-control">
+          Binary face
+          <select id="rain-font-select"></select>
+        </label>
+        <label class="font-field resolved-control">
+          Size
+          <span class="font-row">
+            <input id="rain-size" type="range" min="8" max="22" step="1" value="12">
+            <output id="rain-size-output">12</output>
+          </span>
+        </label>
+        <label class="font-field resolved-control">
+          Opacity
+          <span class="font-row">
+            <input id="rain-opacity" type="range" min="16" max="70" step="1" value="44">
+            <output id="rain-opacity-output">44</output>
+          </span>
+        </label>
+        <label class="font-field resolved-control">
+          Softness
+          <span class="font-row">
+            <input id="rain-softness" type="range" min="0" max="1.2" step="0.05" value="0.25">
+            <output id="rain-softness-output">0.25</output>
+          </span>
+        </label>
+        <div class="font-save">
+          <button id="rain-save" type="button">SAVE</button>
+          <output id="rain-save-status">not saved</output>
+        </div>
+      </div>
+    </aside>
+
+    <script>
+      // Matrix-style vertical code rain — copied from the Claude Design source.
+      (function () {
+        function init(canvas, opts) {
+          opts = opts || {};
+          const ctx = canvas.getContext('2d');
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          let W = 0, H = 0, cols = 0, drops = [];
+          let fontSize = opts.fontSize || 14;
+          let fontFamily = opts.fontFamily || '"JetBrains Mono", "IBM Plex Mono", monospace';
+          // weighted toward 0/1 binary, occasional sparse glyphs for texture
+          const chars = (opts.chars || '0000111100110011010110100101').split('');
+
+          function fontStack() {
+            return `${fontSize}px ${fontFamily}`;
+          }
+
+          function resize() {
+            const rect = canvas.getBoundingClientRect();
+            W = rect.width;
+            H = rect.height;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            cols = Math.floor(W / fontSize);
+            drops = new Array(cols).fill(0).map(() => Math.random() * H / fontSize);
+            seedCurtain();
+          }
+
+          function seedCurtain() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, W, H);
+            ctx.font = fontStack();
+            ctx.textBaseline = 'top';
+            for (let i = 0; i < cols; i++) {
+              const x = i * fontSize;
+              for (let row = 0; row < H / fontSize; row++) {
+                if (Math.random() > 0.72) continue;
+                const ch = chars[(Math.random() * chars.length) | 0];
+                const y = row * fontSize;
+                const topBoost = row < H / fontSize * 0.35 ? 1.3 : 1;
+                const alpha = Math.min(0.54, (0.06 + Math.random() * 0.28) * topBoost);
+                ctx.fillStyle = `rgba(0,255,136,${alpha})`;
+                ctx.fillText(ch, x, y);
+              }
+            }
+          }
+
+          let running = true;
+          let lastFrame = 0;
+          const fps = opts.fps || 22;
+          const frameInterval = 1000 / fps;
+
+          function frame(ts) {
+            if (!running) return;
+            if (ts - lastFrame < frameInterval) {
+              requestAnimationFrame(frame);
+              return;
+            }
+            lastFrame = ts;
+
+            // Fade trail
+            ctx.fillStyle = `rgba(0,0,0,${opts.trail || 0.08})`;
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.font = fontStack();
+            ctx.textBaseline = 'top';
+            const accent = opts.color || '#00ff88';
+            const head = opts.headColor || '#d6ffe9';
+
+            for (let i = 0; i < cols; i++) {
+              const ch = chars[(Math.random() * chars.length) | 0];
+              const x = i * fontSize;
+              const y = drops[i] * fontSize;
+
+              // bright head
+              ctx.fillStyle = head;
+              ctx.fillText(ch, x, y);
+              // trailing glow
+              ctx.fillStyle = accent;
+              ctx.fillText(ch, x, y - fontSize);
+
+              if (y > H && Math.random() > 0.975) {
+                drops[i] = 0;
+              }
+              drops[i] += 1;
+            }
+            requestAnimationFrame(frame);
+          }
+
+          resize();
+          window.addEventListener('resize', resize);
+          requestAnimationFrame(frame);
+
+          return {
+            destroy() { running = false; window.removeEventListener('resize', resize); },
+            setColor(c) { opts.color = c; },
+            setIntensity(n) { opts.fps = n; },
+            setFontFamily(family) {
+              fontFamily = family;
+              seedCurtain();
+            },
+            setFontSize(size) {
+              fontSize = Math.max(6, Number(size) || fontSize);
+              resize();
+            },
+            refresh() {
+              seedCurtain();
+            }
+          };
+        }
+
+        window.MatrixRain = { init };
+      })();
+
+      window.matrixRainInstance = window.MatrixRain.init(document.getElementById("binary-rain"), {
+        color: "#00ff88",
+        headColor: "#d6ffe9",
+        fps: 14,
+        trail: 0.025,
+        fontSize: 12,
+        fontFamily: '"Share Tech Mono", "Cascadia Mono", "Consolas", monospace'
+      });
+
+      (function initFontLab() {
+        const isFinalPreview = true;
+        if (isFinalPreview) {
+          document.body.classList.add("is-final-preview");
+        }
+        if (new URLSearchParams(window.location.search).has("mobilePreview")) {
+          document.documentElement.classList.add("is-mobile-workbench-preview");
+        }
+
+        const fonts = [
+          { label: "Share Tech Mono", family: "Share Tech Mono", slug: "share-tech-mono" },
+          { label: "IBM Plex Mono", family: "IBM Plex Mono", slug: "ibm-plex-mono" },
+          { label: "Space Mono", family: "Space Mono", slug: "space-mono" },
+          { label: "JetBrains Mono", family: "JetBrains Mono", slug: "jetbrains-mono" },
+          { label: "Roboto Mono", family: "Roboto Mono", slug: "roboto-mono" },
+          { label: "Source Code Pro", family: "Source Code Pro", slug: "source-code-pro" },
+          { label: "Fira Mono", family: "Fira Mono", slug: "fira-mono" },
+          { label: "Inconsolata", family: "Inconsolata", slug: "inconsolata" },
+          { label: "Azeret Mono", family: "Azeret Mono", slug: "azeret-mono" },
+          { label: "DM Mono", family: "DM Mono", slug: "dm-mono" },
+          { label: "Spline Sans Mono", family: "Spline Sans Mono", slug: "spline-sans-mono" },
+          { label: "Overpass Mono", family: "Overpass Mono", slug: "overpass-mono" },
+          { label: "Red Hat Mono", family: "Red Hat Mono", slug: "red-hat-mono" },
+          { label: "Fragment Mono", family: "Fragment Mono", slug: "fragment-mono" },
+          { label: "Major Mono Display", family: "Major Mono Display", slug: "major-mono-display" },
+          { label: "Noto Sans Mono", family: "Noto Sans Mono", slug: "noto-sans-mono" },
+          { label: "Ubuntu Mono", family: "Ubuntu Mono", slug: "ubuntu-mono" },
+          { label: "Anonymous Pro", family: "Anonymous Pro", slug: "anonymous-pro" },
+          { label: "Cousine", family: "Cousine", slug: "cousine" },
+          { label: "Courier Prime", family: "Courier Prime", slug: "courier-prime" },
+          { label: "Cutive Mono", family: "Cutive Mono", slug: "cutive-mono" },
+          { label: "Lekton", family: "Lekton", slug: "lekton" },
+          { label: "Oxanium", family: "Oxanium", slug: "oxanium" },
+          { label: "Rajdhani", family: "Rajdhani", slug: "rajdhani" },
+          { label: "Orbitron", family: "Orbitron", slug: "orbitron" },
+          { label: "Michroma", family: "Michroma", slug: "michroma" },
+          { label: "Chakra Petch", family: "Chakra Petch", slug: "chakra-petch" },
+          { label: "Quantico", family: "Quantico", slug: "quantico" },
+          { label: "Electrolize", family: "Electrolize", slug: "electrolize" },
+          { label: "Tomorrow", family: "Tomorrow", slug: "tomorrow" },
+          { label: "Cascadia Mono (system)", family: "Cascadia Mono", system: true },
+          { label: "Consolas (system)", family: "Consolas", system: true },
+          { label: "Space Grotesk", family: "Space Grotesk", slug: "space-grotesk" },
+          { label: "Sora", family: "Sora", slug: "sora" },
+          { label: "Exo 2", family: "Exo 2", slug: "exo-2" },
+          { label: "Outfit", family: "Outfit", slug: "outfit" },
+          { label: "Manrope", family: "Manrope", slug: "manrope" },
+          { label: "Inter", family: "Inter", slug: "inter" },
+          { label: "Plus Jakarta Sans", family: "Plus Jakarta Sans", slug: "plus-jakarta-sans" },
+          { label: "Montserrat", family: "Montserrat", slug: "montserrat" },
+          { label: "Barlow", family: "Barlow", slug: "barlow" },
+          { label: "Barlow Condensed", family: "Barlow Condensed", slug: "barlow-condensed" },
+          { label: "Teko", family: "Teko", slug: "teko" },
+          { label: "Oswald", family: "Oswald", slug: "oswald" },
+          { label: "Current Sans (system)", family: "Pretendard", system: true, stack: '"Pretendard", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif' }
+        ];
+
+        const canvas = document.getElementById("binary-rain");
+        const page = document.querySelector(".page");
+        const brandHeader = document.querySelector(".brand");
+        const stage = document.querySelector(".stage");
+        const brandText = document.querySelector(".deno");
+        const brandTextInput = document.getElementById("brand-text-input");
+        const entryTitles = [...document.querySelectorAll(".entry strong")];
+        const visualCanvas = document.getElementById("visual-canvas");
+        const visualChoiceGrid = document.getElementById("visual-choice-grid");
+        const comfyEntry = document.querySelector(".comfy-entry");
+        const comfyPanel = document.getElementById("comfyui-panel");
+        const comfyPanelClose = document.getElementById("comfyui-panel-close");
+        const toolsEntry = document.querySelector(".tools-entry");
+        const toolsPanel = document.getElementById("tools-panel");
+        const toolsPanelClose = document.getElementById("tools-panel-close");
+        const panel = document.querySelector(".font-lab");
+        const toggle = document.getElementById("font-lab-toggle");
+        const layoutSelect = document.getElementById("layout-select");
+        const select = document.getElementById("rain-font-select");
+        const brandFontSelect = document.getElementById("brand-font-select");
+        const categoryFontSelect = document.getElementById("category-font-select");
+        const brandSize = document.getElementById("brand-size");
+        const brandSizeOut = document.getElementById("brand-size-output");
+        const categorySize = document.getElementById("category-size");
+        const categorySizeOut = document.getElementById("category-size-output");
+        const currentTopChoice = document.getElementById("current-top-choice");
+        const currentWordingChoice = document.getElementById("current-wording-choice");
+        const currentCategoryChoice = document.getElementById("current-category-choice");
+        const currentVisualChoice = document.getElementById("current-visual-choice");
+        const currentVisualLabel = document.getElementById("current-visual-label");
+        const currentTuneChoice = document.getElementById("current-tune-choice");
+        const currentMobileChoice = document.getElementById("current-mobile-choice");
+        const currentMobileLabel = document.getElementById("current-mobile-label");
+        const currentTuneTargetLabel = document.getElementById("current-tune-target-label");
+        const currentTopFontLabel = document.getElementById("current-top-font-label");
+        const currentCategoryFontLabel = document.getElementById("current-category-font-label");
+        const tuneTargetSelect = document.getElementById("tune-target-select");
+        const tuneX = document.getElementById("tune-x");
+        const tuneXOut = document.getElementById("tune-x-output");
+        const tuneY = document.getElementById("tune-y");
+        const tuneYOut = document.getElementById("tune-y-output");
+        const tuneScale = document.getElementById("tune-scale");
+        const tuneScaleOut = document.getElementById("tune-scale-output");
+        const tuneWidth = document.getElementById("tune-width");
+        const tuneWidthOut = document.getElementById("tune-width-output");
+        const tuneHeight = document.getElementById("tune-height");
+        const tuneHeightOut = document.getElementById("tune-height-output");
+        const tuneCenterX = document.getElementById("tune-center-x");
+        const tuneCenterY = document.getElementById("tune-center-y");
+        const tuneReset = document.getElementById("tune-reset");
+        const mobileTuneReset = document.getElementById("mobile-tune-reset");
+        const mobileTuneControls = {
+          brandY: {
+            input: document.getElementById("mobile-brand-y"),
+            output: document.getElementById("mobile-brand-y-output"),
+            css: "--mobile-brand-y",
+            unit: "px",
+            nudge: 5
+          },
+          stageY: {
+            input: document.getElementById("mobile-stage-y"),
+            output: document.getElementById("mobile-stage-y-output"),
+            css: "--mobile-stage-y",
+            unit: "px",
+            nudge: 5
+          },
+          menuY: {
+            input: document.getElementById("mobile-menu-y"),
+            output: document.getElementById("mobile-menu-y-output"),
+            css: "--mobile-menu-y",
+            unit: "px",
+            nudge: 5
+          },
+          menuWidth: {
+            input: document.getElementById("mobile-menu-width"),
+            output: document.getElementById("mobile-menu-width-output"),
+            css: "--mobile-menu-width",
+            unit: "px",
+            nudge: 5
+          },
+          menuGap: {
+            input: document.getElementById("mobile-menu-gap"),
+            output: document.getElementById("mobile-menu-gap-output"),
+            css: "--mobile-menu-gap",
+            unit: "px",
+            nudge: 2
+          },
+          menuSize: {
+            input: document.getElementById("mobile-menu-size"),
+            output: document.getElementById("mobile-menu-size-output"),
+            css: "--mobile-menu-size",
+            unit: "px",
+            nudge: 2
+          },
+          visualY: {
+            input: document.getElementById("mobile-visual-y"),
+            output: document.getElementById("mobile-visual-y-output"),
+            css: "--mobile-visual-y",
+            unit: "px",
+            nudge: 5
+          },
+          visualSize: {
+            input: document.getElementById("mobile-visual-size"),
+            output: document.getElementById("mobile-visual-size-output"),
+            css: "--mobile-visual-size",
+            unit: "px",
+            nudge: 8
+          },
+          visualOpacity: {
+            input: document.getElementById("mobile-visual-opacity"),
+            output: document.getElementById("mobile-visual-opacity-output"),
+            css: "--mobile-visual-opacity",
+            unit: "%",
+            nudge: 4,
+            cssValue: (value) => Number(value) / 100
+          },
+          visualBlur: {
+            input: document.getElementById("mobile-visual-blur"),
+            output: document.getElementById("mobile-visual-blur-output"),
+            css: "--mobile-visual-blur",
+            unit: "px",
+            nudge: 0.2
+          }
+        };
+        const size = document.getElementById("rain-size");
+        const sizeOut = document.getElementById("rain-size-output");
+        const opacity = document.getElementById("rain-opacity");
+        const opacityOut = document.getElementById("rain-opacity-output");
+        const softness = document.getElementById("rain-softness");
+        const softnessOut = document.getElementById("rain-softness-output");
+        const saveButton = document.getElementById("rain-save");
+        const saveStatus = document.getElementById("rain-save-status");
+        const tuneElements = {
+          brand: document.querySelector(".deno"),
+          index: document.querySelector(".index"),
+          visual: document.querySelector(".visual"),
+          stage: document.querySelector(".stage")
+        };
+        const tuneLabels = {
+          brand: "Top logo",
+          index: "Category block",
+          visual: "Visual frame",
+          stage: "Whole stage"
+        };
+        const defaultTuning = {
+          brand: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
+          index: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
+          visual: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
+          stage: { x: 0, y: 0, scale: 1, width: 0, height: 0 }
+        };
+        const defaultMobileTuning = {
+          brandY: 0,
+          stageY: 0,
+          menuY: 0,
+          menuWidth: 340,
+          menuGap: 0,
+          menuSize: 36,
+          brandSize: 44,
+          brandFontLabel: "Teko",
+          brandFontFamily: "Teko",
+          brandFontSlug: "teko",
+          brandFontStack: "\"Teko\", \"Cascadia Mono\", \"Consolas\", monospace",
+          visualY: 0,
+          visualSize: 360,
+          visualOpacity: 44,
+          visualBlur: 1.2
+        };
+        const defaultBrandText = "DENO AI HUB";
+        const visualConcepts = [
+          { id: "signal-core", label: "01 Signal Core", accent: "#00ff91", secondary: "#94ffe0" },
+          { id: "node-orbit", label: "02 Node Orbit", accent: "#67f4ff", secondary: "#00ff91" },
+          { id: "server-corridor", label: "03 Server Corridor", accent: "#c6fff0", secondary: "#00b96f" },
+          { id: "chip-field", label: "04 Chip Field", accent: "#9cff6a", secondary: "#00ff91" },
+          { id: "creator-frames", label: "05 Creator Frames", accent: "#ff5a7a", secondary: "#00ff91" },
+          { id: "data-lens", label: "06 Data Lens", accent: "#b6a7ff", secondary: "#00ff91" },
+          { id: "control-tower", label: "07 Control Tower", accent: "#f5ff9c", secondary: "#00ff91" },
+          { id: "studio-cockpit", label: "08 Studio Cockpit", accent: "#7ee7ff", secondary: "#ff4c7d" },
+          { id: "archive-vault", label: "09 Archive Vault", accent: "#d6dde0", secondary: "#00ff91" }
+        ];
+        const defaultVisualConcept = "signal-core";
+        let tuning = cloneTuning(defaultTuning);
+        let mobileTuning = { ...defaultMobileTuning };
+        let brandWording = defaultBrandText;
+        let brandEditing = false;
+        let selectedVisualConcept = defaultVisualConcept;
+
+        function fillFontSelect(targetSelect) {
+          fonts.forEach((font, index) => {
+            const option = document.createElement("option");
+            option.value = String(index);
+            option.textContent = font.label;
+            targetSelect.appendChild(option);
+          });
+        }
+
+        [select, brandFontSelect, categoryFontSelect].forEach(fillFontSelect);
+
+        function markSelectedOption(targetSelect) {
+          [...targetSelect.options].forEach((option) => {
+            option.textContent = option.dataset.baseLabel || option.textContent.replace(/^✓ /, "");
+          });
+          const option = targetSelect.selectedOptions[0];
+          if (option) {
+            option.dataset.baseLabel = option.dataset.baseLabel || option.textContent.replace(/^✓ /, "");
+            option.textContent = `✓ ${option.dataset.baseLabel}`;
+          }
+        }
+
+        function refreshSelectionMarks() {
+          [tuneTargetSelect, brandFontSelect, categoryFontSelect].forEach(markSelectedOption);
+        }
+
+        function stackFor(font) {
+          if (font.stack) return font.stack;
+          return `"${font.family}", "Cascadia Mono", "Consolas", monospace`;
+        }
+
+        function indexByLabel(label) {
+          return Math.max(0, fonts.findIndex((font) => font.label === label));
+        }
+
+        function cloneTuning(value) {
+          return JSON.parse(JSON.stringify(value));
+        }
+
+        function mergeTuning(value) {
+          const merged = cloneTuning(defaultTuning);
+          Object.entries(value || {}).forEach(([key, partial]) => {
+            if (merged[key]) {
+              merged[key] = { ...merged[key], ...partial };
+            }
+          });
+          return merged;
+        }
+
+        function mergeMobileTuning(value) {
+          const merged = { ...defaultMobileTuning };
+          Object.entries(value || {}).forEach(([key, raw]) => {
+            if (!(key in merged)) return;
+            if (typeof merged[key] === "number" && Number.isFinite(Number(raw))) {
+              merged[key] = Number(raw);
+            } else if (typeof merged[key] === "string" && raw !== undefined && raw !== null) {
+              merged[key] = String(raw);
+            }
+          });
+          return merged;
+        }
+
+        function selectedFont(targetSelect) {
+          return fonts[Number(targetSelect.value) || 0] || fonts[0];
+        }
+
+        function visualById(id) {
+          return visualConcepts.find((concept) => concept.id === id) || visualConcepts[0];
+        }
+
+        function seedFromText(text) {
+          return [...text].reduce((seed, char) => ((seed << 5) - seed + char.charCodeAt(0)) >>> 0, 2166136261);
+        }
+
+        function seededRandom(seed) {
+          let value = seed >>> 0;
+          return () => {
+            value = (value * 1664525 + 1013904223) >>> 0;
+            return value / 4294967296;
+          };
+        }
+
+        function rgba(hex, alpha) {
+          const value = hex.replace("#", "");
+          const r = parseInt(value.slice(0, 2), 16);
+          const g = parseInt(value.slice(2, 4), 16);
+          const b = parseInt(value.slice(4, 6), 16);
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+          const r = Math.min(radius, width / 2, height / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + width, y, x + width, y + height, r);
+          ctx.arcTo(x + width, y + height, x, y + height, r);
+          ctx.arcTo(x, y + height, x, y, r);
+          ctx.arcTo(x, y, x + width, y, r);
+          ctx.closePath();
+        }
+
+        function setupVisualCanvas(canvasElement, size) {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvasElement.width = size * dpr;
+          canvasElement.height = size * dpr;
+          const context = canvasElement.getContext("2d");
+          context.setTransform(dpr, 0, 0, dpr, 0, 0);
+          return { ctx: context, w: size, h: size };
+        }
+
+        function drawBase(ctx, concept, w, h, rand) {
+          const bg = ctx.createRadialGradient(w * 0.52, h * 0.48, 0, w * 0.5, h * 0.52, w * 0.72);
+          bg.addColorStop(0, rgba(concept.accent, 0.28));
+          bg.addColorStop(0.36, rgba(concept.secondary, 0.12));
+          bg.addColorStop(1, "rgba(0, 0, 0, 0.96)");
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, w, h);
+
+          ctx.strokeStyle = rgba(concept.secondary, 0.12);
+          ctx.lineWidth = 1;
+          for (let i = 0; i < 34; i += 1) {
+            const x = rand() * w;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + (rand() - 0.5) * w * 0.16, h);
+            ctx.stroke();
+          }
+
+          for (let i = 0; i < 900; i += 1) {
+            const a = rand() * 0.16;
+            ctx.fillStyle = rgba(rand() > 0.5 ? concept.accent : concept.secondary, a);
+            ctx.fillRect(rand() * w, rand() * h, 1 + rand() * 2, 1 + rand() * 2);
+          }
+        }
+
+        function drawVisualConcept(canvasElement, conceptId, size = 900) {
+          const concept = visualById(conceptId);
+          const { ctx, w, h } = setupVisualCanvas(canvasElement, size);
+          const rand = seededRandom(seedFromText(concept.id));
+          const cx = w / 2;
+          const cy = h / 2;
+          drawBase(ctx, concept, w, h, rand);
+
+          ctx.save();
+          ctx.shadowColor = rgba(concept.accent, 0.55);
+          ctx.shadowBlur = w * 0.045;
+          ctx.strokeStyle = rgba(concept.accent, 0.58);
+          ctx.fillStyle = rgba(concept.accent, 0.12);
+          ctx.lineWidth = Math.max(1, w * 0.006);
+
+          if (concept.id === "signal-core") {
+            for (let i = 0; i < 5; i += 1) {
+              ctx.beginPath();
+              ctx.arc(cx, cy, w * (0.11 + i * 0.072), 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.23);
+            core.addColorStop(0, rgba(concept.accent, 0.9));
+            core.addColorStop(0.36, rgba(concept.accent, 0.24));
+            core.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = core;
+            ctx.beginPath();
+            ctx.arc(cx, cy, w * 0.24, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          if (concept.id === "node-orbit") {
+            const nodes = Array.from({ length: 18 }, (_, i) => {
+              const angle = (i / 18) * Math.PI * 2 + rand() * 0.28;
+              const radius = w * (0.18 + rand() * 0.24);
+              return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+            });
+            nodes.forEach((node, i) => {
+              const next = nodes[(i + 5) % nodes.length];
+              ctx.beginPath();
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(next.x, next.y);
+              ctx.stroke();
+            });
+            nodes.forEach((node) => {
+              ctx.fillStyle = rgba(concept.accent, 0.88);
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, w * 0.014, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+
+          if (concept.id === "server-corridor") {
+            ctx.translate(cx, cy + h * 0.08);
+            for (let i = 0; i < 9; i += 1) {
+              const depth = i / 9;
+              const width = w * (0.78 - depth * 0.58);
+              const height = h * (0.7 - depth * 0.48);
+              ctx.strokeStyle = rgba(concept.accent, 0.16 + depth * 0.42);
+              roundRect(ctx, -width / 2, -height / 2, width, height, w * 0.018);
+              ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.moveTo(-w * 0.42, h * 0.28);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(w * 0.42, h * 0.28);
+            ctx.stroke();
+          }
+
+          if (concept.id === "chip-field") {
+            for (let y = h * 0.18; y < h * 0.82; y += h * 0.12) {
+              for (let x = w * 0.18; x < w * 0.82; x += w * 0.12) {
+                ctx.fillStyle = rgba(concept.accent, 0.1 + rand() * 0.22);
+                roundRect(ctx, x, y, w * 0.07, h * 0.07, w * 0.01);
+                ctx.fill();
+                ctx.stroke();
+              }
+            }
+            ctx.strokeStyle = rgba(concept.secondary, 0.34);
+            for (let i = 0; i < 28; i += 1) {
+              const p = rand() * w;
+              ctx.beginPath();
+              ctx.moveTo(p, h * 0.18);
+              ctx.lineTo(w * 0.5, h * 0.5);
+              ctx.lineTo(rand() * w, h * 0.82);
+              ctx.stroke();
+            }
+          }
+
+          if (concept.id === "creator-frames") {
+            for (let i = 0; i < 8; i += 1) {
+              const x = w * (0.18 + rand() * 0.54);
+              const y = h * (0.16 + rand() * 0.58);
+              const ww = w * (0.18 + rand() * 0.12);
+              const hh = ww * 0.62;
+              ctx.fillStyle = rgba(i % 2 ? concept.secondary : concept.accent, 0.14);
+              roundRect(ctx, x, y, ww, hh, w * 0.012);
+              ctx.fill();
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(x + ww * 0.42, y + hh * 0.28);
+              ctx.lineTo(x + ww * 0.42, y + hh * 0.72);
+              ctx.lineTo(x + ww * 0.72, y + hh * 0.5);
+              ctx.closePath();
+              ctx.fillStyle = rgba("#ffffff", 0.54);
+              ctx.fill();
+            }
+          }
+
+          if (concept.id === "data-lens") {
+            for (let i = 0; i < 10; i += 1) {
+              const start = rand() * Math.PI * 2;
+              ctx.strokeStyle = rgba(i % 2 ? concept.secondary : concept.accent, 0.18 + rand() * 0.5);
+              ctx.beginPath();
+              ctx.arc(cx, cy, w * (0.12 + i * 0.033), start, start + Math.PI * (0.42 + rand() * 0.8));
+              ctx.stroke();
+            }
+            ctx.fillStyle = rgba(concept.accent, 0.32);
+            ctx.fillRect(cx - w * 0.012, h * 0.16, w * 0.024, h * 0.68);
+          }
+
+          if (concept.id === "control-tower") {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.46)";
+            roundRect(ctx, cx - w * 0.08, h * 0.18, w * 0.16, h * 0.56, w * 0.02);
+            ctx.fill();
+            ctx.stroke();
+            for (let i = 0; i < 6; i += 1) {
+              ctx.beginPath();
+              ctx.ellipse(cx, h * (0.22 + i * 0.085), w * (0.12 + i * 0.045), h * 0.028, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.moveTo(cx, h * 0.12);
+            ctx.lineTo(cx, h * 0.84);
+            ctx.stroke();
+          }
+
+          if (concept.id === "studio-cockpit") {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            roundRect(ctx, w * 0.14, h * 0.56, w * 0.72, h * 0.16, w * 0.03);
+            ctx.fill();
+            ctx.stroke();
+            for (let i = 0; i < 5; i += 1) {
+              const x = w * (0.19 + i * 0.13);
+              roundRect(ctx, x, h * 0.25 + rand() * h * 0.08, w * 0.11, h * 0.18, w * 0.014);
+              ctx.fillStyle = rgba(i % 2 ? concept.secondary : concept.accent, 0.16);
+              ctx.fill();
+              ctx.stroke();
+            }
+            ctx.fillStyle = rgba("#ffffff", 0.34);
+            ctx.beginPath();
+            ctx.arc(cx, h * 0.49, w * 0.045, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          if (concept.id === "archive-vault") {
+            for (let i = 0; i < 7; i += 1) {
+              const width = w * (0.68 - i * 0.06);
+              const height = h * 0.062;
+              const x = cx - width / 2;
+              const y = h * (0.24 + i * 0.074);
+              ctx.fillStyle = rgba(i % 2 ? concept.secondary : concept.accent, 0.13 + i * 0.018);
+              roundRect(ctx, x, y, width, height, w * 0.012);
+              ctx.fill();
+              ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.arc(cx, cy, w * 0.33, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          ctx.restore();
+
+          ctx.globalCompositeOperation = "screen";
+          const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.48);
+          glow.addColorStop(0, rgba(concept.accent, 0.18));
+          glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = glow;
+          ctx.fillRect(0, 0, w, h);
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        function updateVisualChoiceMarks() {
+          const concept = visualById(selectedVisualConcept);
+          currentVisualChoice.textContent = concept.label;
+          currentVisualLabel.textContent = concept.label;
+          document.querySelectorAll(".visual-choice").forEach((button) => {
+            button.classList.toggle("is-selected", button.dataset.concept === concept.id);
+          });
+        }
+
+        function applyVisualConcept(conceptId, silent = false) {
+          const concept = visualById(conceptId);
+          selectedVisualConcept = concept.id;
+          drawVisualConcept(visualCanvas, concept.id, 900);
+          updateVisualChoiceMarks();
+          if (!silent) setStatus("unsaved changes");
+        }
+
+        function initVisualChoices() {
+          visualConcepts.forEach((concept, index) => {
+            const button = document.createElement("button");
+            button.className = "visual-choice";
+            button.type = "button";
+            button.dataset.concept = concept.id;
+            button.dataset.index = String(index + 1).padStart(2, "0");
+            button.setAttribute("aria-label", concept.label);
+            const thumb = document.createElement("canvas");
+            button.appendChild(thumb);
+            visualChoiceGrid.appendChild(button);
+            drawVisualConcept(thumb, concept.id, 180);
+            button.addEventListener("click", () => applyVisualConcept(concept.id));
+          });
+          updateVisualChoiceMarks();
+        }
+
+        function setMenuPanel(panel, entry, open) {
+          panel.hidden = false;
+          panel.classList.toggle("is-open", open);
+          entry.classList.toggle("is-tool-active", open);
+          entry.setAttribute("aria-expanded", open ? "true" : "false");
+          if (!open) {
+            window.setTimeout(() => {
+              if (!panel.classList.contains("is-open")) panel.hidden = true;
+            }, 180);
+          }
+        }
+
+        function openToolsPanel() {
+          closeComfyPanel();
+          setMenuPanel(toolsPanel, toolsEntry, true);
+        }
+
+        function closeToolsPanel() {
+          setMenuPanel(toolsPanel, toolsEntry, false);
+        }
+
+        function openComfyPanel() {
+          closeToolsPanel();
+          setMenuPanel(comfyPanel, comfyEntry, true);
+        }
+
+        function closeComfyPanel() {
+          setMenuPanel(comfyPanel, comfyEntry, false);
+        }
+
+        function closeAllPanels() {
+          closeToolsPanel();
+          closeComfyPanel();
+        }
+
+        function cleanBrandText(value, fallback = true) {
+          const text = String(value ?? "").replace(/\s+/g, " ").trim();
+          return text || (fallback ? defaultBrandText : "");
+        }
+
+        function renderBrandText(value, fallback = true) {
+          const text = cleanBrandText(value, fallback);
+          const words = text.split(" ").filter(Boolean);
+          brandText.replaceChildren();
+
+          if (words.length <= 1) {
+            const span = document.createElement("span");
+            span.textContent = words[0] || "";
+            brandText.appendChild(span);
+          } else {
+            const accentWord = words.pop();
+            const main = document.createElement("span");
+            const accent = document.createElement("span");
+            main.textContent = words.join(" ");
+            accent.textContent = accentWord;
+            accent.className = "accent";
+            brandText.append(main, accent);
+          }
+
+          brandWording = text;
+          brandTextInput.value = text;
+          brandHeader?.setAttribute("aria-label", text || defaultBrandText);
+          stage?.setAttribute("aria-label", text || defaultBrandText);
+          updateCurrentLabels();
+        }
+
+        function selectBrandText() {
+          const range = document.createRange();
+          range.selectNodeContents(brandText);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+
+        function beginBrandEdit(event) {
+          event?.preventDefault();
+          event?.stopPropagation();
+          if (brandEditing) return;
+          brandEditing = true;
+          brandText.classList.add("is-editing");
+          brandText.contentEditable = "true";
+          brandText.spellcheck = false;
+          brandText.textContent = brandWording || defaultBrandText;
+          brandText.focus();
+          selectBrandText();
+        }
+
+        function commitBrandEdit() {
+          if (!brandEditing) return;
+          brandEditing = false;
+          const nextText = brandText.textContent;
+          brandText.contentEditable = "false";
+          brandText.classList.remove("is-editing");
+          renderBrandText(nextText, true);
+          setStatus("unsaved changes");
+        }
+
+        function cancelBrandEdit() {
+          if (!brandEditing) return;
+          brandEditing = false;
+          brandText.contentEditable = "false";
+          brandText.classList.remove("is-editing");
+          renderBrandText(brandWording, true);
+        }
+
+        function updateCurrentLabels() {
+          const top = selectedFont(brandFontSelect);
+          const category = selectedFont(categoryFontSelect);
+          const visual = visualById(selectedVisualConcept);
+          const targetKey = tuneTargetSelect.value;
+          const tune = tuning[targetKey] || defaultTuning[targetKey];
+          currentWordingChoice.textContent = brandWording || "-";
+          currentTopChoice.textContent = `${top.label} / ${brandSize.value}px`;
+          currentCategoryChoice.textContent = `${category.label} / ${categorySize.value}px`;
+          currentVisualChoice.textContent = visual.label;
+          currentVisualLabel.textContent = visual.label;
+          currentTuneChoice.textContent = `${tuneLabels[targetKey]} / x ${Math.round(tune.x)} / y ${Math.round(tune.y)} / ${Number(tune.scale).toFixed(2)}x`;
+          currentMobileChoice.textContent = `menu ${mobileTuning.menuSize}px / circle ${mobileTuning.visualSize}px / ${mobileTuning.visualOpacity}%`;
+          currentMobileLabel.textContent = `menu Y ${Math.round(mobileTuning.menuY)} / circle Y ${Math.round(mobileTuning.visualY)}`;
+          currentTuneTargetLabel.textContent = tuneLabels[targetKey];
+          currentTopFontLabel.textContent = top.label;
+          currentCategoryFontLabel.textContent = category.label;
+          refreshSelectionMarks();
+        }
+
+        function setStatus(text, tone) {
+          saveStatus.textContent = text;
+          saveStatus.style.color = tone === "ok"
+            ? "var(--green)"
+            : tone === "error"
+              ? "#ffcf3a"
+              : "rgba(243, 247, 242, 0.54)";
+        }
+
+        function currentSettings() {
+          const fontIndex = Number(select.value) || 0;
+          const font = fonts[fontIndex] || fonts[0];
+          return {
+            layout: layoutSelect.value,
+            fontIndex,
+            fontLabel: font.label,
+            fontFamily: font.family,
+            fontSlug: font.slug || null,
+            fontStack: stackFor(font),
+            size: Number(size.value),
+            opacity: Number(opacity.value) / 100,
+            softness: Number(softness.value),
+            content: {
+              brandText: brandWording
+            },
+            visual: {
+              concept: selectedVisualConcept,
+              label: visualById(selectedVisualConcept).label
+            },
+            tuning,
+            mobileTuning,
+            typography: {
+              brand: {
+                fontIndex: Number(brandFontSelect.value) || 0,
+                fontLabel: selectedFont(brandFontSelect).label,
+                fontFamily: selectedFont(brandFontSelect).family,
+                fontSlug: selectedFont(brandFontSelect).slug || null,
+                fontStack: stackFor(selectedFont(brandFontSelect)),
+                size: Number(brandSize.value)
+              },
+              category: {
+                fontIndex: Number(categoryFontSelect.value) || 0,
+                fontLabel: selectedFont(categoryFontSelect).label,
+                fontFamily: selectedFont(categoryFontSelect).family,
+                fontSlug: selectedFont(categoryFontSelect).slug || null,
+                fontStack: stackFor(selectedFont(categoryFontSelect)),
+                size: Number(categorySize.value)
+              }
+            }
+          };
+        }
+
+        function setTuneVars(key, value) {
+          document.documentElement.style.setProperty(`--tune-${key}-x`, `${value.x}px`);
+          document.documentElement.style.setProperty(`--tune-${key}-y`, `${value.y}px`);
+          document.documentElement.style.setProperty(`--tune-${key}-scale`, value.scale);
+          if (key === "visual") {
+            document.documentElement.style.setProperty("--tune-visual-width", `${value.width}px`);
+            document.documentElement.style.setProperty("--tune-visual-height", `${value.height}px`);
+          }
+        }
+
+        function setMobileTuneVars(value) {
+          Object.entries(mobileTuneControls).forEach(([key, control]) => {
+            const raw = value[key] ?? defaultMobileTuning[key];
+            const cssValue = control.cssValue ? control.cssValue(raw) : `${raw}${control.unit}`;
+            document.documentElement.style.setProperty(control.css, cssValue);
+          });
+          const brandSizeValue = Number(value.brandSize ?? defaultMobileTuning.brandSize);
+          const brandFace = value.brandFontStack || defaultMobileTuning.brandFontStack;
+          const brandSlug = value.brandFontSlug || defaultMobileTuning.brandFontSlug;
+          document.documentElement.style.setProperty("--mobile-brand-size", `${brandSizeValue}px`);
+          document.documentElement.style.setProperty("--mobile-brand-face", brandFace);
+          if (brandSlug && !document.getElementById(`draft-font-${brandSlug}`)) {
+            const link = document.createElement("link");
+            link.id = `draft-font-${brandSlug}`;
+            link.rel = "stylesheet";
+            link.href = `https://fonts.bunny.net/css?family=${brandSlug}:400;500;600;700&display=swap`;
+            document.head.appendChild(link);
+          }
+        }
+
+        function syncMobileTuneControls() {
+          Object.entries(mobileTuneControls).forEach(([key, control]) => {
+            const value = mobileTuning[key] ?? defaultMobileTuning[key];
+            control.input.value = String(value);
+            control.output.value = String(value);
+          });
+          updateCurrentLabels();
+        }
+
+        function applyMobileTuning(value) {
+          mobileTuning = mergeMobileTuning(value);
+          setMobileTuneVars(mobileTuning);
+          syncMobileTuneControls();
+        }
+
+        function nudgeMobileTune(key, direction) {
+          const control = mobileTuneControls[key];
+          if (!control) return;
+          const input = control.input;
+          const min = Number(input.min);
+          const max = Number(input.max);
+          const step = Number(control.nudge || input.step || 1);
+          const current = Number(input.value);
+          const next = Math.min(max, Math.max(min, current + step * direction));
+          input.value = String(Number(next.toFixed(2)));
+          updateMobileTuneFromControls();
+        }
+
+        function initMobileNudges() {
+          Object.entries(mobileTuneControls).forEach(([key, control]) => {
+            const row = control.input.closest(".font-row");
+            if (!row || row.dataset.nudgesReady) return;
+            row.dataset.nudgesReady = "true";
+            row.classList.add("mobile-tune-row");
+            const minus = document.createElement("button");
+            minus.type = "button";
+            minus.className = "mobile-nudge";
+            minus.textContent = "-";
+            minus.setAttribute("aria-label", `Decrease ${key}`);
+            const plus = document.createElement("button");
+            plus.type = "button";
+            plus.className = "mobile-nudge";
+            plus.textContent = "+";
+            plus.setAttribute("aria-label", `Increase ${key}`);
+            minus.addEventListener("click", () => nudgeMobileTune(key, -1));
+            plus.addEventListener("click", () => nudgeMobileTune(key, 1));
+            row.insertBefore(minus, control.input);
+            row.appendChild(plus);
+          });
+        }
+
+        function updateMobileTuneFromControls() {
+          Object.entries(mobileTuneControls).forEach(([key, control]) => {
+            mobileTuning[key] = Number(control.input.value);
+          });
+          setMobileTuneVars(mobileTuning);
+          syncMobileTuneControls();
+          setStatus("unsaved changes");
+        }
+
+        function setActiveTuneElement() {
+          document.body.dataset.tuneTarget = tuneTargetSelect.value;
+          Object.values(tuneElements).forEach((element) => element?.classList.remove("tune-active"));
+          if (!isFinalPreview) {
+            tuneElements[tuneTargetSelect.value]?.classList.add("tune-active");
+          }
+          document.querySelectorAll(".tune-visual-only").forEach((element) => {
+            element.classList.toggle("is-hidden", tuneTargetSelect.value !== "visual");
+          });
+        }
+
+        function syncTuneControls() {
+          const current = tuning[tuneTargetSelect.value] || defaultTuning[tuneTargetSelect.value];
+          tuneX.value = String(current.x);
+          tuneXOut.value = String(Math.round(current.x));
+          tuneY.value = String(current.y);
+          tuneYOut.value = String(Math.round(current.y));
+          tuneScale.value = String(current.scale);
+          tuneScaleOut.value = Number(current.scale).toFixed(2);
+          tuneWidth.value = String(current.width);
+          tuneWidthOut.value = String(Math.round(current.width));
+          tuneHeight.value = String(current.height);
+          tuneHeightOut.value = String(Math.round(current.height));
+          setActiveTuneElement();
+          updateCurrentLabels();
+        }
+
+        function applyTuning(value) {
+          tuning = mergeTuning(value);
+          Object.entries(tuning).forEach(([key, target]) => setTuneVars(key, target));
+          syncTuneControls();
+        }
+
+        function updateCurrentTuneFromControls() {
+          const key = tuneTargetSelect.value;
+          tuning[key] = {
+            ...tuning[key],
+            x: Number(tuneX.value),
+            y: Number(tuneY.value),
+            scale: Number(tuneScale.value),
+            width: Number(tuneWidth.value),
+            height: Number(tuneHeight.value)
+          };
+          setTuneVars(key, tuning[key]);
+          syncTuneControls();
+          setStatus("unsaved changes");
+        }
+
+        function applyContent(settings) {
+          renderBrandText(settings.content?.brandText ?? settings.brandText ?? defaultBrandText, true);
+        }
+
+        async function applyTypography(settings) {
+          const typography = settings.typography || {};
+          const defaultIndex = indexByLabel("Space Grotesk");
+          const oldCategory =
+            typography.category ||
+            typography.aiAgent ||
+            typography.comfyUI ||
+            typography.tools ||
+            typography.creators ||
+            {};
+          const brandIndex = Math.min(
+            fonts.length - 1,
+            Math.max(0, Number(typography.brand?.fontIndex ?? defaultIndex) || 0)
+          );
+          const categoryIndex = Math.min(
+            fonts.length - 1,
+            Math.max(0, Number(oldCategory.fontIndex ?? defaultIndex) || 0)
+          );
+          brandFontSelect.value = String(brandIndex);
+          categoryFontSelect.value = String(categoryIndex);
+          brandSize.value = String(typography.brand?.size ?? 48);
+          brandSizeOut.value = brandSize.value;
+          categorySize.value = String(oldCategory.size ?? 37);
+          categorySizeOut.value = categorySize.value;
+
+          const brandFont = fonts[brandIndex] || fonts[defaultIndex] || fonts[0];
+          const categoryFont = fonts[categoryIndex] || fonts[defaultIndex] || fonts[0];
+          await ensureFont(brandFont, brandSize.value);
+          await ensureFont(categoryFont, categorySize.value);
+          brandText.style.fontFamily = stackFor(brandFont);
+          brandText.style.fontSize = `${brandSize.value}px`;
+          entryTitles.forEach((title) => {
+            title.style.fontFamily = stackFor(categoryFont);
+            title.style.fontSize = `${categorySize.value}px`;
+          });
+          updateCurrentLabels();
+        }
+
+        async function applySettings(settings, silent) {
+          layoutSelect.value = settings.layout || "split";
+          page.dataset.layout = layoutSelect.value;
+          const fontIndex = Math.min(fonts.length - 1, Math.max(0, Number(settings.fontIndex) || 0));
+          select.value = String(fontIndex);
+          size.value = String(settings.size ?? size.value);
+          sizeOut.value = size.value;
+          opacity.value = String(Math.round(Number(settings.opacity ?? Number(opacity.value) / 100) * 100));
+          opacityOut.value = opacity.value;
+          softness.value = String(settings.softness ?? softness.value);
+          softnessOut.value = softness.value;
+          canvas.style.opacity = Number(opacity.value) / 100;
+          canvas.style.filter = `blur(${softness.value}px)`;
+          window.matrixRainInstance.setFontSize(size.value);
+          applyContent(settings);
+          applyVisualConcept(settings.visual?.concept ?? settings.visualConcept ?? defaultVisualConcept, true);
+          applyTuning(settings.tuning || {});
+          applyMobileTuning(settings.mobileTuning || {});
+          await loadFont(fonts[fontIndex]);
+          await applyTypography(settings);
+          if (!silent) setStatus("unsaved changes");
+        }
+
+        async function ensureFont(font, sampleSize) {
+          if (!font.system) {
+            const linkId = `draft-font-${font.slug}`;
+            let link = document.getElementById(linkId);
+            if (!link) {
+              link = document.createElement("link");
+              link.id = linkId;
+              link.rel = "stylesheet";
+              link.href = `https://fonts.bunny.net/css?family=${font.slug}:400;500;600;700&display=swap`;
+              document.head.appendChild(link);
+            }
+          }
+
+          if (document.fonts && !font.system) {
+            try {
+              await document.fonts.load(`${sampleSize || size.value}px "${font.family}"`);
+            } catch (error) {
+              // If a draft font fails to load, the fallback stack still renders.
+            }
+          }
+        }
+
+        async function loadFont(font) {
+          await ensureFont(font, size.value);
+
+          window.matrixRainInstance.setFontFamily(stackFor(font));
+        }
+
+        initVisualChoices();
+        initMobileNudges();
+        applyVisualConcept(defaultVisualConcept, true);
+
+        layoutSelect.addEventListener("change", () => {
+          page.dataset.layout = layoutSelect.value;
+          setStatus("unsaved changes");
+        });
+
+        select.addEventListener("change", () => {
+          loadFont(fonts[Number(select.value)]);
+          setStatus("unsaved changes");
+        });
+
+        brandTextInput.addEventListener("input", () => {
+          renderBrandText(brandTextInput.value, false);
+          setStatus("unsaved changes");
+        });
+
+        brandTextInput.addEventListener("blur", () => {
+          renderBrandText(brandTextInput.value, true);
+        });
+
+        brandText.addEventListener("dblclick", beginBrandEdit, { capture: true });
+
+        brandText.addEventListener("input", () => {
+          if (!brandEditing) return;
+          brandTextInput.value = cleanBrandText(brandText.textContent, false);
+          setStatus("unsaved changes");
+        });
+
+        brandText.addEventListener("keydown", (event) => {
+          if (!brandEditing) return;
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commitBrandEdit();
+            brandText.blur();
+          }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            cancelBrandEdit();
+            brandText.blur();
+          }
+        });
+
+        brandText.addEventListener("blur", commitBrandEdit);
+
+        brandFontSelect.addEventListener("change", async () => {
+          const font = selectedFont(brandFontSelect);
+          await ensureFont(font, brandSize.value);
+          brandText.style.fontFamily = stackFor(font);
+          updateCurrentLabels();
+          setStatus("unsaved changes");
+        });
+
+        categoryFontSelect.addEventListener("change", async () => {
+          const font = selectedFont(categoryFontSelect);
+          await ensureFont(font, categorySize.value);
+          entryTitles.forEach((title) => {
+            title.style.fontFamily = stackFor(font);
+          });
+          updateCurrentLabels();
+          setStatus("unsaved changes");
+        });
+
+        brandSize.addEventListener("input", () => {
+          brandSizeOut.value = brandSize.value;
+          brandText.style.fontSize = `${brandSize.value}px`;
+          updateCurrentLabels();
+          setStatus("unsaved changes");
+        });
+
+        categorySize.addEventListener("input", () => {
+          categorySizeOut.value = categorySize.value;
+          entryTitles.forEach((title) => {
+            title.style.fontSize = `${categorySize.value}px`;
+          });
+          updateCurrentLabels();
+          setStatus("unsaved changes");
+        });
+
+        tuneTargetSelect.addEventListener("change", syncTuneControls);
+
+        [tuneX, tuneY, tuneScale, tuneWidth, tuneHeight].forEach((control) => {
+          control.addEventListener("input", updateCurrentTuneFromControls);
+        });
+
+        tuneCenterX.addEventListener("click", () => {
+          tuneX.value = "0";
+          updateCurrentTuneFromControls();
+        });
+
+        tuneCenterY.addEventListener("click", () => {
+          tuneY.value = "0";
+          updateCurrentTuneFromControls();
+        });
+
+        tuneReset.addEventListener("click", () => {
+          const key = tuneTargetSelect.value;
+          tuning[key] = { ...defaultTuning[key] };
+          syncTuneControls();
+          setTuneVars(key, tuning[key]);
+          setStatus("unsaved changes");
+        });
+
+        Object.values(mobileTuneControls).forEach((control) => {
+          control.input.addEventListener("input", updateMobileTuneFromControls);
+        });
+
+        mobileTuneReset.addEventListener("click", () => {
+          applyMobileTuning({});
+          setStatus("unsaved changes");
+        });
+
+        size.addEventListener("input", () => {
+          sizeOut.value = size.value;
+          window.matrixRainInstance.setFontSize(size.value);
+          setStatus("unsaved changes");
+        });
+
+        opacity.addEventListener("input", () => {
+          opacityOut.value = opacity.value;
+          canvas.style.opacity = Number(opacity.value) / 100;
+          setStatus("unsaved changes");
+        });
+
+        softness.addEventListener("input", () => {
+          softnessOut.value = softness.value;
+          canvas.style.filter = `blur(${softness.value}px)`;
+          setStatus("unsaved changes");
+        });
+
+        toggle.addEventListener("click", () => {
+          panel.classList.toggle("is-collapsed");
+          toggle.textContent = panel.classList.contains("is-collapsed") ? "+" : "-";
+        });
+
+        document.querySelectorAll(".entry").forEach((entry) => {
+          entry.addEventListener("click", (event) => {
+            if (entry === comfyEntry) {
+              event.preventDefault();
+              openComfyPanel();
+              history.replaceState(null, "", `${location.pathname}${location.search}#comfyui`);
+              return;
+            }
+            if (entry === toolsEntry) {
+              event.preventDefault();
+              openToolsPanel();
+              history.replaceState(null, "", `${location.pathname}${location.search}#tools`);
+              return;
+            }
+            event.preventDefault();
+            closeAllPanels();
+          });
+        });
+
+        toolsPanelClose.addEventListener("click", closeToolsPanel);
+        comfyPanelClose.addEventListener("click", closeComfyPanel);
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeAllPanels();
+        });
+
+        document.querySelectorAll(".tool-link").forEach((link) => {
+          link.addEventListener("click", () => {
+            const owner = link.closest("#comfyui-panel") ? comfyEntry : toolsEntry;
+            owner.classList.add("is-tool-active");
+            owner.setAttribute("aria-expanded", "true");
+          });
+        });
+
+        let dragState = null;
+
+        function beginDrag(event) {
+          if (isFinalPreview) return;
+          if (panel.contains(event.target)) return;
+          if (brandEditing || event.target.closest?.("[contenteditable='true'], textarea, input, select, button")) return;
+          const key = tuneTargetSelect.value;
+          const target = tuneElements[key];
+          if (!target || !target.contains(event.target)) return;
+          event.preventDefault();
+          dragState = {
+            key,
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            baseX: tuning[key].x,
+            baseY: tuning[key].y
+          };
+          document.body.classList.add("is-dragging");
+          target.setPointerCapture?.(event.pointerId);
+        }
+
+        function moveDrag(event) {
+          if (!dragState) return;
+          const target = tuning[dragState.key];
+          target.x = Math.round(dragState.baseX + event.clientX - dragState.startX);
+          target.y = Math.round(dragState.baseY + event.clientY - dragState.startY);
+          setTuneVars(dragState.key, target);
+          if (dragState.key === tuneTargetSelect.value) syncTuneControls();
+          setStatus("unsaved changes");
+        }
+
+        function endDrag(event) {
+          if (!dragState) return;
+          tuneElements[dragState.key]?.releasePointerCapture?.(event.pointerId);
+          dragState = null;
+          document.body.classList.remove("is-dragging");
+        }
+
+        document.addEventListener("pointerdown", beginDrag);
+        document.addEventListener("pointermove", moveDrag);
+        document.addEventListener("pointerup", endDrag);
+
+        document.addEventListener("mousedown", (event) => {
+          if (event.button !== 0 || dragState) return;
+          beginDrag(event);
+        });
+
+        document.addEventListener("mousemove", moveDrag);
+        document.addEventListener("mouseup", endDrag);
+
+        document.addEventListener("mouseleave", () => {
+          if (!dragState) return;
+          dragState = null;
+          document.body.classList.remove("is-dragging");
+        });
+
+        window.addEventListener("message", (event) => {
+          if (event.origin !== location.origin) return;
+          if (event.data?.type !== "deno-mobile-tuning") return;
+          applyMobileTuning(event.data.mobileTuning || {});
+        });
+
+        saveButton.addEventListener("click", async () => {
+          setStatus("saving...");
+          try {
+            const response = await fetch("/api/draft-settings", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(currentSettings())
+            });
+            if (!response.ok) throw new Error("Save failed");
+            const saved = await response.json();
+            setStatus(saved.updatedAt ? `saved ${saved.updatedAt.slice(11, 19)}` : "saved", "ok");
+          } catch (error) {
+            setStatus("local save server needed", "error");
+          }
+        });
+
+        function restoreHashPanel() {
+          if (location.hash === "#tools") openToolsPanel();
+          if (location.hash === "#comfyui") openComfyPanel();
+        }
+
+        async function loadStaticSelection(label = "loaded static") {
+          const response = await fetch("draft-h-selection.json", { cache: "no-store" });
+          if (!response.ok) return false;
+          const saved = await response.json();
+          const settings = saved.settings || saved;
+          if (!settings || typeof settings !== "object") return false;
+          await applySettings(settings, true);
+          restoreHashPanel();
+          setStatus(label, "ok");
+          return true;
+        }
+
+        (async function loadSavedSelection() {
+          const pagesPreview = true;
+          if (pagesPreview) {
+            try {
+              if (await loadStaticSelection("GitHub Pages preview")) return;
+            } catch (error) {
+              // Fall through to defaults if the static selection file is missing.
+            }
+          } else {
+            try {
+              const response = await fetch("/api/draft-settings", { cache: "no-store" });
+              const saved = await response.json();
+              if (saved.saved && saved.settings) {
+                await applySettings(saved.settings, true);
+                restoreHashPanel();
+                setStatus("loaded saved", "ok");
+                return;
+              }
+            } catch (error) {
+              // GitHub Pages has no save API, so fall back to the static selection file.
+            }
+            try {
+              if (await loadStaticSelection()) return;
+            } catch (error) {
+              // Static hosting can still show defaults if the selection file is missing.
+            }
+          }
+          applyTuning({});
+          applyMobileTuning({});
+          await loadFont(fonts[0]);
+          await applyTypography({});
+          restoreHashPanel();
+          setStatus("not saved");
+        })();
+      })();
+    </script>
+  </body>
+</html>
