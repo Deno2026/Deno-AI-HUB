@@ -1343,6 +1343,10 @@
             <button class="tools-panel-close" id="tools-panel-close" type="button" aria-label="Close tools panel">×</button>
           </div>
           <div class="tool-link-list">
+            <a class="tool-link" href="https://github.com/Deno2026/deno-video-player/releases/latest" target="_blank" rel="noreferrer" data-tool="deno-video-player">
+              <strong>DENO Video Player</strong>
+              <span>play local videos, audio, and images with a lightweight Windows media player.</span>
+            </a>
             <a class="tool-link" href="https://deno2026.github.io/comfyui-deno-custom-nodes/video-compare/" target="_blank" rel="noreferrer" data-tool="video-compare">
               <strong>DENO Video Compare</strong>
               <span>compare two rendered videos with slider, side-by-side, difference, and toggle views.</span>
@@ -1984,6 +1988,65 @@
           { id: "archive-vault", label: "09 Archive Vault", accent: "#d6dde0", secondary: "#00ff91" }
         ];
         const defaultVisualConcept = "signal-core";
+        const productionFallbackSettings = {
+          layout: "orbit",
+          fontIndex: 7,
+          fontLabel: "Inconsolata",
+          fontFamily: "Inconsolata",
+          fontSlug: "inconsolata",
+          fontStack: "\"Inconsolata\", \"Cascadia Mono\", \"Consolas\", monospace",
+          size: 13,
+          opacity: 0.34,
+          softness: 0.7,
+          content: {
+            brandText: "DENO AI HUB"
+          },
+          visual: {
+            concept: "node-orbit",
+            label: "02 Node Orbit"
+          },
+          tuning: {
+            brand: { x: 0, y: 97, scale: 2.58, width: 0, height: 0 },
+            index: { x: 0, y: 0, scale: 1.07, width: 0, height: 0 },
+            visual: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
+            stage: { x: 0, y: 0, scale: 1, width: 0, height: 0 }
+          },
+          mobileTuning: {
+            brandY: 51,
+            stageY: -103,
+            menuY: 0,
+            menuWidth: 340,
+            menuGap: 0,
+            menuSize: 36,
+            brandSize: 86,
+            brandFontLabel: "Teko",
+            brandFontFamily: "Teko",
+            brandFontSlug: "teko",
+            brandFontStack: "\"Teko\", \"Cascadia Mono\", \"Consolas\", monospace",
+            visualY: 0,
+            visualSize: 360,
+            visualOpacity: 44,
+            visualBlur: 1.2
+          },
+          typography: {
+            brand: {
+              fontIndex: 42,
+              fontLabel: "Teko",
+              fontFamily: "Teko",
+              fontSlug: "teko",
+              fontStack: "\"Teko\", \"Cascadia Mono\", \"Consolas\", monospace",
+              size: 68
+            },
+            category: {
+              fontIndex: 22,
+              fontLabel: "Oxanium",
+              fontFamily: "Oxanium",
+              fontSlug: "oxanium",
+              fontStack: "\"Oxanium\", \"Cascadia Mono\", \"Consolas\", monospace",
+              size: 46
+            }
+          }
+        };
         let tuning = cloneTuning(defaultTuning);
         let mobileTuning = { ...defaultMobileTuning };
         let brandWording = defaultBrandText;
@@ -3043,12 +3106,9 @@
               // Static hosting can still show defaults if the selection file is missing.
             }
           }
-          applyTuning({});
-          applyMobileTuning({});
-          await loadFont(fonts[0]);
-          await applyTypography({});
+          await applySettings(productionFallbackSettings, true);
           restoreHashPanel();
-          setStatus("not saved");
+          setStatus("production fallback", "ok");
         })();
       })();
     </script>
