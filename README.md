@@ -1,8 +1,7 @@
 # DENO AI HUB
 
-DENO AI Hub main gate page.
+![DENO AI HUB preview](./assets/preview.png)
 
-## Live
+Live page: https://deno2026.github.io/Deno-AI-HUB/
 
-GitHub Pages will serve the page from the repository root after Pages is enabled.
-
+Repository: https://github.com/Deno2026/Deno-AI-HUB
