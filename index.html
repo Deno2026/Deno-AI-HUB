@@ -213,6 +213,29 @@
         opacity: 1;
       }
 
+      .site-footer {
+        position: fixed;
+        right: 48px;
+        bottom: 28px;
+        z-index: 74;
+        font: 800 10px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.08em;
+      }
+
+      .site-footer a {
+        color: rgba(243, 247, 242, 0.58);
+        text-decoration: none;
+        text-transform: uppercase;
+        text-shadow: 0 0 14px rgba(0, 255, 145, 0.14);
+        transition: color 160ms ease, text-shadow 160ms ease;
+      }
+
+      .site-footer a:hover,
+      .site-footer a:focus-visible {
+        color: var(--green);
+        text-shadow: 0 0 18px rgba(0, 255, 145, 0.28);
+      }
+
       .speaker-wave {
         opacity: 0.28;
         transition: opacity 160ms ease;
@@ -1064,6 +1087,12 @@
           height: 34px;
         }
 
+        .site-footer {
+          right: 18px;
+          bottom: 16px;
+          font-size: 9px;
+        }
+
         .audio-toggle svg {
           width: 17px;
           height: 17px;
@@ -1299,6 +1328,9 @@
       <span class="audio-control-label">AI BGM</span>
     </div>
     <audio id="bgm-audio" src="assets/audio/deno-bgm-local-ai-music.wav" preload="metadata" loop></audio>
+    <footer class="site-footer">
+      <a href="./privacy-policy.html">Privacy Policy</a>
+    </footer>
     <main class="page" data-layout="split">
       <header class="brand" aria-label="DENO AI HUB">
         <div class="deno" aria-hidden="true">

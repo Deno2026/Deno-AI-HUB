@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#020403">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <title>Privacy Policy</title>
+    <style>
+      :root {
+        --bg: #020403;
+        --fg: #f3f7f2;
+        --muted: #a7b6ad;
+        --green: #00ff91;
+        --green-line: rgba(0, 255, 145, 0.24);
+        --surface: rgba(4, 14, 10, 0.76);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        overflow-x: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        letter-spacing: 0;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(0, 255, 145, 0.14), transparent 360px),
+          repeating-linear-gradient(90deg, rgba(0, 255, 145, 0.035) 0 1px, transparent 1px 72px),
+          radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.72) 100%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: min(920px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 56px 0 72px;
+      }
+
+      .top-link {
+        display: inline-flex;
+        margin-bottom: 38px;
+        color: rgba(243, 247, 242, 0.7);
+        font: 800 12px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .top-link:hover,
+      .top-link:focus-visible {
+        color: var(--green);
+      }
+
+      header {
+        border-bottom: 1px solid var(--green-line);
+        padding-bottom: 26px;
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--fg);
+        font-size: clamp(42px, 8vw, 86px);
+        line-height: 0.95;
+        font-weight: 820;
+      }
+
+      .subtitle {
+        max-width: 700px;
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      main {
+        display: grid;
+        gap: 22px;
+        margin-top: 34px;
+      }
+
+      section {
+        border: 1px solid var(--green-line);
+        background:
+          linear-gradient(135deg, rgba(0, 255, 145, 0.07), transparent 34%),
+          var(--surface);
+        padding: 24px;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        color: var(--green);
+        font: 800 13px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      p,
+      li {
+        color: rgba(243, 247, 242, 0.86);
+        font-size: 16px;
+        line-height: 1.68;
+        overflow-wrap: anywhere;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      a {
+        color: var(--green);
+        text-decoration-color: rgba(0, 255, 145, 0.46);
+        text-underline-offset: 3px;
+      }
+
+      .last-updated {
+        margin-top: 30px;
+        color: rgba(243, 247, 242, 0.62);
+        font: 800 12px/1.4 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          width: calc(100vw - 28px);
+          padding: 34px 0 48px;
+        }
+
+        section {
+          padding: 18px;
+        }
+
+        p,
+        li {
+          font-size: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <a class="top-link" href="./">Deno AI Hub</a>
+
+      <header>
+        <h1>Privacy Policy</h1>
+        <p class="subtitle">
+          This Privacy Policy explains how Deno Upload Helper and Deno AI Hub handle information when the local upload workflow uses the YouTube Data API.
+        </p>
+      </header>
+
+      <main>
+        <section>
+          <h2>Purpose</h2>
+          <p>
+            Deno Upload Helper is used for a private upload workflow for the owner&apos;s YouTube channel. The tool helps upload videos, apply thumbnails, upload manually reviewed SRT captions, apply multilingual title and description localizations, and check the resulting video ID, caption status, and localization status after upload.
+          </p>
+        </section>
+
+        <section>
+          <h2>Data Accessed</h2>
+          <p>The tool may access only the information selected or entered for the upload workflow:</p>
+          <ul>
+            <li>Video files selected by the user.</li>
+            <li>Thumbnail images selected by the user.</li>
+            <li>Manually reviewed SRT caption files selected by the user.</li>
+            <li>Title, description, tags, category, language, and privacy status.</li>
+            <li>Upload result video ID, video URL, caption status, and localization status.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>YouTube API Services</h2>
+          <p>This application uses YouTube API Services.</p>
+          <p>
+            By using this tool, users are also agreeing to the
+            <a href="https://www.youtube.com/t/terms" target="_blank" rel="noreferrer">YouTube Terms of Service</a>.
+          </p>
+          <p>
+            Users can also review the
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Privacy Policy</a>
+            and the
+            <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noreferrer">YouTube API Services Developer Policies</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2>Data Use Limits</h2>
+          <ul>
+            <li>No third-party YouTube data is collected.</li>
+            <li>No comments or public videos are scraped.</li>
+            <li>No user data is used for advertising or profiling.</li>
+            <li>No user data is sold or shared with third parties.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>OAuth Tokens</h2>
+          <p>
+            OAuth tokens are stored locally on the user&apos;s machine when the local Upload Helper is used. Tokens are not sold or shared with third parties.
+          </p>
+        </section>
+
+        <section>
+          <h2>Revoking Access and Deleting Data</h2>
+          <p>
+            Users can stop access by deleting the local settings or token files used by the Upload Helper. Users can also revoke the app&apos;s access from the
+            <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer">Google Account permissions page</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2>Contact</h2>
+          <p>
+            Contact:
+            <a href="mailto:YoutubeDeno@gmail.com">YoutubeDeno@gmail.com</a>
+          </p>
+        </section>
+      </main>
+
+      <p class="last-updated">Last updated: June 8, 2026</p>
+    </div>
+  </body>
+</html>
