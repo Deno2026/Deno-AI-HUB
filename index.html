@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="ko">
+<html class="is-booting" lang="ko">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#020403">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link id="draft-font-inconsolata" rel="stylesheet" href="https://fonts.bunny.net/css?family=inconsolata:400;500;600;700&display=swap">
+    <link id="draft-font-teko" rel="stylesheet" href="https://fonts.bunny.net/css?family=teko:400;500;600;700&display=swap">
+    <link id="draft-font-oxanium" rel="stylesheet" href="https://fonts.bunny.net/css?family=oxanium:400;500;600;700&display=swap">
     <title>DENO AI HUB</title>
     <style>
       :root {
@@ -17,27 +21,29 @@
         --green-line: rgba(0, 255, 145, 0.24);
         --green-strong: rgba(0, 255, 145, 0.58);
         --surface: rgba(4, 14, 10, 0.62);
+        --brand-face: "Teko", "Cascadia Mono", "Consolas", monospace;
+        --entry-face: "Oxanium", "Cascadia Mono", "Consolas", monospace;
         --tune-brand-x: 0px;
-        --tune-brand-y: 0px;
-        --tune-brand-scale: 1;
+        --tune-brand-y: 97px;
+        --tune-brand-scale: 2.58;
         --tune-stage-x: 0px;
         --tune-stage-y: 0px;
         --tune-stage-scale: 1;
         --tune-index-x: 0px;
         --tune-index-y: 0px;
-        --tune-index-scale: 1;
+        --tune-index-scale: 1.07;
         --tune-visual-x: 0px;
         --tune-visual-y: 0px;
         --tune-visual-scale: 1;
         --tune-visual-width: 0px;
         --tune-visual-height: 0px;
-        --mobile-brand-y: 0px;
-        --mobile-stage-y: 0px;
+        --mobile-brand-y: 51px;
+        --mobile-stage-y: -103px;
         --mobile-menu-y: 0px;
         --mobile-menu-width: 340px;
         --mobile-menu-gap: 0px;
         --mobile-menu-size: 36px;
-        --mobile-brand-size: 44px;
+        --mobile-brand-size: 86px;
         --mobile-brand-face: "Teko", "Cascadia Mono", "Consolas", monospace;
         --mobile-visual-y: 0px;
         --mobile-visual-size: 360px;
@@ -272,6 +278,14 @@
         grid-template-rows: 112px minmax(0, 1fr);
       }
 
+      html.is-booting .page,
+      html.is-booting .youtube-mark,
+      html.is-booting .audio-control,
+      html.is-booting .site-footer {
+        visibility: hidden;
+        opacity: 0;
+      }
+
       .brand {
         display: grid;
         justify-items: center;
@@ -284,7 +298,7 @@
         align-items: center;
         color: var(--fg);
         font-family: var(--brand-face, "Pretendard", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
-        font-size: clamp(40px, 4.2vw, 58px);
+        font-size: 68px;
         line-height: 1;
         font-weight: 760;
         white-space: nowrap;
@@ -371,7 +385,7 @@
         display: block;
         color: var(--fg);
         font-family: var(--entry-face, "Pretendard", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
-        font-size: 37px;
+        font-size: 46px;
         line-height: 1;
         font-weight: 760;
       }
@@ -627,7 +641,7 @@
       }
 
       .page[data-layout="orbit"] .entry strong {
-        font-size: clamp(28px, 2.4vw, 40px);
+        font-size: 46px;
       }
 
       .entry.is-later {
@@ -1331,7 +1345,7 @@
     <footer class="site-footer">
       <a href="./privacy-policy.html">Privacy Policy</a>
     </footer>
-    <main class="page" data-layout="split">
+    <main class="page" data-layout="orbit">
       <header class="brand" aria-label="DENO AI HUB">
         <div class="deno" aria-hidden="true">
           <span>DENO AI</span><span class="accent">HUB</span>
@@ -1424,7 +1438,7 @@
           <select id="layout-select">
             <option value="split">Split Index + Visual</option>
             <option value="wall">2x2 Gate Wall</option>
-            <option value="orbit">Center Core Orbit</option>
+            <option value="orbit" selected>Center Core Orbit</option>
           </select>
         </label>
         <div class="current-choice">
@@ -1441,15 +1455,15 @@
           <label class="font-field">
             Logo Y
             <span class="font-row">
-              <input id="mobile-brand-y" type="range" min="-160" max="220" step="1" value="0">
-              <output id="mobile-brand-y-output">0</output>
+              <input id="mobile-brand-y" type="range" min="-160" max="220" step="1" value="51">
+              <output id="mobile-brand-y-output">51</output>
             </span>
           </label>
           <label class="font-field">
             Whole Y
             <span class="font-row">
-              <input id="mobile-stage-y" type="range" min="-260" max="320" step="1" value="0">
-              <output id="mobile-stage-y-output">0</output>
+              <input id="mobile-stage-y" type="range" min="-260" max="320" step="1" value="-103">
+              <output id="mobile-stage-y-output">-103</output>
             </span>
           </label>
           <label class="font-field">
@@ -1579,8 +1593,8 @@
         <label class="font-field">
           Top size
           <span class="font-row">
-            <input id="brand-size" type="range" min="12" max="180" step="1" value="48">
-            <output id="brand-size-output">48</output>
+            <input id="brand-size" type="range" min="12" max="180" step="1" value="68">
+            <output id="brand-size-output">68</output>
           </span>
         </label>
         <label class="font-field">
@@ -1591,8 +1605,8 @@
         <label class="font-field">
           Category size
           <span class="font-row">
-            <input id="category-size" type="range" min="12" max="140" step="1" value="37">
-            <output id="category-size-output">37</output>
+            <input id="category-size" type="range" min="12" max="140" step="1" value="46">
+            <output id="category-size-output">46</output>
           </span>
         </label>
         <label class="font-field resolved-control">
@@ -1985,19 +1999,19 @@
           stage: "Whole stage"
         };
         const defaultTuning = {
-          brand: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
-          index: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
+          brand: { x: 0, y: 97, scale: 2.58, width: 0, height: 0 },
+          index: { x: 0, y: 0, scale: 1.07, width: 0, height: 0 },
           visual: { x: 0, y: 0, scale: 1, width: 0, height: 0 },
           stage: { x: 0, y: 0, scale: 1, width: 0, height: 0 }
         };
         const defaultMobileTuning = {
-          brandY: 0,
-          stageY: 0,
+          brandY: 51,
+          stageY: -103,
           menuY: 0,
           menuWidth: 340,
           menuGap: 0,
           menuSize: 36,
-          brandSize: 44,
+          brandSize: 86,
           brandFontLabel: "Teko",
           brandFontFamily: "Teko",
           brandFontSlug: "teko",
@@ -2019,7 +2033,7 @@
           { id: "studio-cockpit", label: "08 Studio Cockpit", accent: "#7ee7ff", secondary: "#ff4c7d" },
           { id: "archive-vault", label: "09 Archive Vault", accent: "#d6dde0", secondary: "#00ff91" }
         ];
-        const defaultVisualConcept = "signal-core";
+        const defaultVisualConcept = "node-orbit";
         const productionFallbackSettings = {
           layout: "orbit",
           fontIndex: 7,
@@ -3099,6 +3113,52 @@
           if (location.hash === "#comfyui") openComfyPanel();
         }
 
+        function delay(ms) {
+          return new Promise((resolve) => window.setTimeout(resolve, ms));
+        }
+
+        function waitForStylesheet(linkId) {
+          const link = document.getElementById(linkId);
+          if (!link || link.dataset.ready === "true" || link.dataset.ready === "error") {
+            return Promise.resolve();
+          }
+          return new Promise((resolve) => {
+            const done = (state) => {
+              link.dataset.ready = state;
+              resolve();
+            };
+            link.addEventListener("load", () => done("true"), { once: true });
+            link.addEventListener("error", () => done("error"), { once: true });
+            if (link.sheet) done("true");
+          });
+        }
+
+        async function waitForInitialRenderFonts() {
+          const fontReadiness = (async () => {
+            await Promise.allSettled([
+              waitForStylesheet("draft-font-inconsolata"),
+              waitForStylesheet("draft-font-teko"),
+              waitForStylesheet("draft-font-oxanium")
+            ]);
+            if (!document.fonts) return;
+            await Promise.allSettled([
+              document.fonts.load('13px "Inconsolata"', "0000111100"),
+              document.fonts.load('68px "Teko"', "DENO AI HUB"),
+              document.fonts.load('86px "Teko"', "DENO AI HUB"),
+              document.fonts.load('36px "Oxanium"', "ComfyUI Tools"),
+              document.fonts.load('46px "Oxanium"', "ComfyUI Tools")
+            ]);
+          })();
+          await Promise.race([fontReadiness, delay(3600)]);
+        }
+
+        async function revealInitialRender() {
+          await waitForInitialRenderFonts();
+          window.requestAnimationFrame(() => {
+            document.documentElement.classList.remove("is-booting");
+          });
+        }
+
         async function loadStaticSelection(label = "loaded static") {
           const response = await fetch("draft-h-selection.json", { cache: "no-store" });
           if (!response.ok) return false;
@@ -3112,35 +3172,45 @@
         }
 
         (async function loadSavedSelection() {
-          const pagesPreview = true;
-          if (pagesPreview) {
-            try {
-              if (await loadStaticSelection("GitHub Pages preview")) return;
-            } catch (error) {
-              // Fall through to defaults if the static selection file is missing.
+          try {
+            if (location.protocol === "file:") {
+              await applySettings(productionFallbackSettings, true);
+              restoreHashPanel();
+              setStatus("production fallback", "ok");
+              return;
             }
-          } else {
-            try {
-              const response = await fetch("/api/draft-settings", { cache: "no-store" });
-              const saved = await response.json();
-              if (saved.saved && saved.settings) {
-                await applySettings(saved.settings, true);
-                restoreHashPanel();
-                setStatus("loaded saved", "ok");
-                return;
+            const pagesPreview = true;
+            if (pagesPreview) {
+              try {
+                if (await loadStaticSelection("GitHub Pages preview")) return;
+              } catch (error) {
+                // Fall through to defaults if the static selection file is missing.
               }
-            } catch (error) {
-              // GitHub Pages has no save API, so fall back to the static selection file.
+            } else {
+              try {
+                const response = await fetch("/api/draft-settings", { cache: "no-store" });
+                const saved = await response.json();
+                if (saved.saved && saved.settings) {
+                  await applySettings(saved.settings, true);
+                  restoreHashPanel();
+                  setStatus("loaded saved", "ok");
+                  return;
+                }
+              } catch (error) {
+                // GitHub Pages has no save API, so fall back to the static selection file.
+              }
+              try {
+                if (await loadStaticSelection()) return;
+              } catch (error) {
+                // Static hosting can still show defaults if the selection file is missing.
+              }
             }
-            try {
-              if (await loadStaticSelection()) return;
-            } catch (error) {
-              // Static hosting can still show defaults if the selection file is missing.
-            }
+            await applySettings(productionFallbackSettings, true);
+            restoreHashPanel();
+            setStatus("production fallback", "ok");
+          } finally {
+            await revealInitialRender();
           }
-          await applySettings(productionFallbackSettings, true);
-          restoreHashPanel();
-          setStatus("production fallback", "ok");
         })();
       })();
     </script>
