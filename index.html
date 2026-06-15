@@ -676,6 +676,108 @@
         color: var(--green);
       }
 
+      .music-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .entry-music-icon {
+        width: 44px;
+        height: 34px;
+        color: var(--green);
+        display: inline-flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 5px;
+        flex: 0 0 auto;
+        opacity: 0.96;
+        transform-origin: 50% 80%;
+        animation: music-icon-pop 1.9s ease-in-out infinite;
+        filter: drop-shadow(0 0 13px rgba(0, 255, 145, 0.32));
+        will-change: transform;
+      }
+
+      .entry-music-icon .music-bar {
+        width: 6px;
+        display: block;
+        border-radius: 999px;
+        background: currentColor;
+        box-shadow: 0 0 12px rgba(0, 255, 145, 0.32);
+        transform-origin: 50% 100%;
+        animation: music-bar-dance 1.08s ease-in-out infinite;
+      }
+
+      .entry-music-icon .music-bar:nth-child(1) {
+        height: 13px;
+        animation-delay: -0.22s;
+      }
+
+      .entry-music-icon .music-bar:nth-child(2) {
+        height: 25px;
+        animation-delay: -0.48s;
+      }
+
+      .entry-music-icon .music-bar:nth-child(3) {
+        height: 18px;
+        animation-delay: -0.08s;
+      }
+
+      .entry-music-icon .music-bar:nth-child(4) {
+        height: 31px;
+        animation-delay: -0.34s;
+      }
+
+      .entry-music-icon .music-bar:nth-child(5) {
+        height: 21px;
+        animation-delay: -0.6s;
+      }
+
+      .music-entry:hover .entry-music-icon {
+        animation-duration: 0.92s;
+      }
+
+      .music-entry:hover .entry-music-icon .music-bar {
+        animation-duration: 0.72s;
+      }
+
+      @keyframes music-icon-pop {
+        0%,
+        100% {
+          transform: translateY(0) scale(1);
+        }
+
+        42% {
+          transform: translateY(-4px) scale(1.04);
+        }
+
+        68% {
+          transform: translateY(1px) scale(0.99);
+        }
+      }
+
+      @keyframes music-bar-dance {
+        0%,
+        100% {
+          transform: scaleY(0.72);
+        }
+
+        45% {
+          transform: scaleY(1.12);
+        }
+
+        72% {
+          transform: scaleY(0.92);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .entry-music-icon,
+        .entry-music-icon .music-bar {
+          animation: none;
+        }
+      }
+
       .page[data-layout="orbit"] .entry.is-later {
         border-top-color: rgba(164, 174, 170, 0.16);
         border-bottom-color: rgba(164, 174, 170, 0.16);
@@ -1367,9 +1469,18 @@
             <b class="num">03</b>
             <div><strong>Tools</strong></div>
           </a>
-          <a class="entry is-later" href="#">
+          <a class="entry music-entry" href="https://deno2026.github.io/DENO-Music-Library/" aria-label="Open DENO Music Library">
             <b class="num">04</b>
-            <div><strong>Creators</strong></div>
+            <div class="music-label">
+              <strong>Music</strong>
+              <span class="entry-music-icon" aria-hidden="true">
+                <span class="music-bar"></span>
+                <span class="music-bar"></span>
+                <span class="music-bar"></span>
+                <span class="music-bar"></span>
+                <span class="music-bar"></span>
+              </span>
+            </div>
           </a>
         </nav>
 
@@ -1424,6 +1535,7 @@
             </a>
           </div>
         </aside>
+
       </section>
     </main>
 
@@ -1869,6 +1981,7 @@
         const toolsEntry = document.querySelector(".tools-entry");
         const toolsPanel = document.getElementById("tools-panel");
         const toolsPanelClose = document.getElementById("tools-panel-close");
+        const musicEntry = document.querySelector(".music-entry");
         const panel = document.querySelector(".font-lab");
         const toggle = document.getElementById("font-lab-toggle");
         const layoutSelect = document.getElementById("layout-select");
@@ -3007,6 +3120,10 @@
               event.preventDefault();
               openToolsPanel();
               history.replaceState(null, "", `${location.pathname}${location.search}#tools`);
+              return;
+            }
+            if (entry === musicEntry) {
+              closeAllPanels();
               return;
             }
             event.preventDefault();
