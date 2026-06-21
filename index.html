@@ -480,8 +480,13 @@
         aspect-ratio: 1;
         display: block;
         color: var(--green);
+        appearance: none;
+        border: 0;
+        padding: 0;
+        background: transparent;
         text-decoration: none;
         border-radius: 999px;
+        cursor: pointer;
         transform: translate(-50%, -50%);
         transform-origin: center center;
         filter:
@@ -574,6 +579,154 @@
           transform: scale(1.045);
           opacity: 0.88;
         }
+      }
+
+      .discord-modal-backdrop {
+        position: fixed;
+        z-index: 30;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 50% 50%, rgba(0, 255, 145, 0.12), transparent 46%),
+          rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(4px);
+      }
+
+      .discord-modal-backdrop[hidden] {
+        display: none;
+      }
+
+      body.is-discord-modal-open {
+        overflow: hidden;
+      }
+
+      .discord-modal-card {
+        position: relative;
+        width: min(390px, calc(100vw - 44px));
+        padding: 26px;
+        color: var(--text);
+        border: 1px solid rgba(0, 255, 145, 0.38);
+        background:
+          linear-gradient(180deg, rgba(0, 255, 145, 0.1), rgba(0, 0, 0, 0.76)),
+          rgba(1, 12, 8, 0.95);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 0 54px rgba(0, 255, 145, 0.16),
+          0 28px 70px rgba(0, 0, 0, 0.72);
+      }
+
+      .discord-modal-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(0, 255, 145, 0.26);
+        border-radius: 999px;
+        color: rgba(242, 255, 249, 0.72);
+        background: rgba(0, 0, 0, 0.42);
+        cursor: pointer;
+        font: 700 20px/1 var(--mono);
+      }
+
+      .discord-modal-close:hover,
+      .discord-modal-close:focus-visible {
+        color: var(--text);
+        border-color: rgba(0, 255, 145, 0.62);
+        outline: none;
+      }
+
+      .discord-modal-top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .discord-modal-mascot {
+        width: 82px;
+        height: 82px;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 255, 145, 0.38);
+        box-shadow: 0 0 28px rgba(0, 255, 145, 0.16);
+      }
+
+      .discord-modal-mascot img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .discord-badge {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        color: #fff;
+        background: #5865f2;
+        font: 900 16px/1 var(--sans);
+        box-shadow: 0 0 18px rgba(88, 101, 242, 0.4);
+      }
+
+      .discord-modal-title {
+        margin: 0 0 8px;
+        font: 800 24px/1.06 var(--sans);
+        letter-spacing: 0;
+      }
+
+      .discord-modal-copy {
+        margin: 0 0 20px;
+        max-width: 31em;
+        color: rgba(233, 255, 247, 0.72);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .discord-modal-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .discord-modal-primary,
+      .discord-modal-secondary {
+        min-height: 44px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid rgba(0, 255, 145, 0.32);
+        padding: 0 18px;
+        text-decoration: none;
+        font: 800 14px/1 var(--sans);
+        letter-spacing: 0;
+        cursor: pointer;
+      }
+
+      .discord-modal-primary {
+        color: #021009;
+        border-color: rgba(0, 255, 145, 0.72);
+        background: var(--green);
+        box-shadow: 0 0 22px rgba(0, 255, 145, 0.25);
+      }
+
+      .discord-modal-secondary {
+        color: rgba(240, 255, 250, 0.64);
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .discord-modal-primary:hover,
+      .discord-modal-primary:focus-visible,
+      .discord-modal-secondary:hover,
+      .discord-modal-secondary:focus-visible {
+        outline: none;
+        border-color: rgba(0, 255, 145, 0.76);
+        filter: drop-shadow(0 0 14px rgba(0, 255, 145, 0.22));
       }
 
       .corner {
@@ -1643,9 +1796,26 @@
             <canvas class="visual-canvas" id="visual-canvas" width="900" height="900"></canvas>
           </div>
         </aside>
-        <a class="discord-join" href="https://discord.gg/HfrdkT3FjE" target="_blank" rel="noopener noreferrer" aria-label="Join DENO AI Lounge Discord">
+        <button class="discord-join" type="button" aria-label="Open DENO Discord invite" aria-haspopup="dialog" aria-controls="discord-modal" aria-expanded="false">
           <img src="assets/discord-imp-mascot.png" alt="" decoding="async" fetchpriority="high">
-        </a>
+        </button>
+        <div class="discord-modal-backdrop" id="discord-modal" role="dialog" aria-modal="true" aria-labelledby="discord-modal-title" aria-describedby="discord-modal-copy" hidden>
+          <section class="discord-modal-card" role="document">
+            <button class="discord-modal-close" id="discord-modal-close" type="button" aria-label="Close Discord invite">&times;</button>
+            <div class="discord-modal-top">
+              <div class="discord-modal-mascot" aria-hidden="true">
+                <img src="assets/discord-imp-mascot.png" alt="" decoding="async">
+              </div>
+              <span class="discord-badge" aria-hidden="true">D</span>
+            </div>
+            <h2 class="discord-modal-title" id="discord-modal-title">DENO Discord Lounge</h2>
+            <p class="discord-modal-copy" id="discord-modal-copy">Join the community space for DENO tools, updates, and creator workflow notes.</p>
+            <div class="discord-modal-actions">
+              <a class="discord-modal-primary" id="discord-modal-join" href="https://discord.gg/HfrdkT3FjE" target="_blank" rel="noopener noreferrer">Join Discord</a>
+              <button class="discord-modal-secondary" id="discord-modal-cancel" type="button">Not now</button>
+            </div>
+          </section>
+        </div>
 
         <aside class="tools-panel" id="tools-panel" hidden aria-label="DENO Tools">
           <div class="tools-panel-head">
@@ -2135,6 +2305,11 @@
         const toolsPanel = document.getElementById("tools-panel");
         const toolsPanelClose = document.getElementById("tools-panel-close");
         const musicEntry = document.querySelector(".music-entry");
+        const discordJoin = document.querySelector(".discord-join");
+        const discordModal = document.getElementById("discord-modal");
+        const discordModalClose = document.getElementById("discord-modal-close");
+        const discordModalCancel = document.getElementById("discord-modal-cancel");
+        const discordModalJoin = document.getElementById("discord-modal-join");
         const panel = document.querySelector(".font-lab");
         const toggle = document.getElementById("font-lab-toggle");
         const layoutSelect = document.getElementById("layout-select");
@@ -2751,6 +2926,29 @@
           closeComfyPanel();
         }
 
+        let lastDiscordTrigger = null;
+
+        function openDiscordModal() {
+          if (!discordModal) return;
+          closeAllPanels();
+          lastDiscordTrigger = document.activeElement;
+          discordModal.hidden = false;
+          document.body.classList.add("is-discord-modal-open");
+          discordJoin?.setAttribute("aria-expanded", "true");
+          discordModalJoin?.focus();
+        }
+
+        function closeDiscordModal() {
+          if (!discordModal || discordModal.hidden) return;
+          discordModal.hidden = true;
+          document.body.classList.remove("is-discord-modal-open");
+          discordJoin?.setAttribute("aria-expanded", "false");
+          if (lastDiscordTrigger && document.contains(lastDiscordTrigger)) {
+            lastDiscordTrigger.focus();
+          }
+          lastDiscordTrigger = null;
+        }
+
         function cleanBrandText(value, fallback = true) {
           const text = String(value ?? "").replace(/\s+/g, " ").trim();
           return text || (fallback ? defaultBrandText : "");
@@ -3286,9 +3484,19 @@
 
         toolsPanelClose.addEventListener("click", closeToolsPanel);
         comfyPanelClose.addEventListener("click", closeComfyPanel);
+        discordJoin?.addEventListener("click", openDiscordModal);
+        discordModalClose?.addEventListener("click", closeDiscordModal);
+        discordModalCancel?.addEventListener("click", closeDiscordModal);
+        discordModalJoin?.addEventListener("click", closeDiscordModal);
+        discordModal?.addEventListener("click", (event) => {
+          if (event.target === discordModal) closeDiscordModal();
+        });
 
         document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape") closeAllPanels();
+          if (event.key === "Escape") {
+            closeAllPanels();
+            closeDiscordModal();
+          }
         });
 
         document.querySelectorAll(".tool-link").forEach((link) => {
