@@ -281,6 +281,7 @@
       html.is-booting .page,
       html.is-booting .youtube-mark,
       html.is-booting .audio-control,
+      html.is-booting .discord-join,
       html.is-booting .site-footer {
         visibility: hidden;
         opacity: 0;
@@ -468,6 +469,111 @@
         height: 100%;
         display: block;
         opacity: 0.94;
+      }
+
+      .discord-join {
+        position: absolute;
+        z-index: 4;
+        left: 50%;
+        top: 50%;
+        width: clamp(310px, 24.5vw, 410px);
+        aspect-ratio: 1;
+        display: block;
+        color: var(--green);
+        text-decoration: none;
+        border-radius: 999px;
+        transform: translate(-50%, -50%);
+        transform-origin: center center;
+        filter:
+          drop-shadow(0 0 18px rgba(0, 255, 145, 0.22))
+          drop-shadow(0 14px 34px rgba(0, 0, 0, 0.52));
+        animation: discord-float 4.2s ease-in-out infinite;
+        transition: filter 180ms ease, transform 180ms ease;
+      }
+
+      .discord-join::before,
+      .discord-join::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        pointer-events: none;
+      }
+
+      .discord-join::before {
+        inset: -11%;
+        border: 1px solid rgba(0, 255, 145, 0.34);
+        background:
+          radial-gradient(circle at center, rgba(0, 255, 145, 0.17), transparent 62%),
+          conic-gradient(from 18deg, transparent 0 18%, rgba(0, 255, 145, 0.32) 22%, transparent 31% 64%, rgba(97, 244, 255, 0.22) 68%, transparent 76%);
+        opacity: 0.72;
+        filter: blur(0.2px);
+        animation: discord-ring-pulse 3.4s ease-in-out infinite;
+      }
+
+      .discord-join::after {
+        inset: 8%;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow:
+          inset 0 0 24px rgba(0, 255, 145, 0.16),
+          0 0 30px rgba(0, 255, 145, 0.12);
+        opacity: 0.62;
+      }
+
+      .discord-join img {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: 999px;
+        opacity: 0.92;
+        mask-image: radial-gradient(circle at 50% 50%, #000 0 63%, rgba(0, 0, 0, 0.78) 76%, transparent 92%);
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0 63%, rgba(0, 0, 0, 0.78) 76%, transparent 92%);
+      }
+
+      .discord-join:hover,
+      .discord-join:focus-visible {
+        filter:
+          drop-shadow(0 0 28px rgba(0, 255, 145, 0.44))
+          drop-shadow(0 18px 42px rgba(0, 0, 0, 0.62));
+        transform: translate(-50%, -53%) scale(1.045);
+        outline: none;
+      }
+
+      .discord-join:hover::before,
+      .discord-join:focus-visible::before {
+        opacity: 0.96;
+        border-color: rgba(0, 255, 145, 0.62);
+      }
+
+      .discord-join:hover img,
+      .discord-join:focus-visible img {
+        opacity: 1;
+      }
+
+      @keyframes discord-float {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+
+        48% {
+          transform: translate(-50%, calc(-50% - 7px)) scale(1.018);
+        }
+      }
+
+      @keyframes discord-ring-pulse {
+        0%,
+        100% {
+          transform: scale(0.98);
+          opacity: 0.58;
+        }
+
+        50% {
+          transform: scale(1.045);
+          opacity: 0.88;
+        }
       }
 
       .corner {
@@ -773,7 +879,9 @@
 
       @media (prefers-reduced-motion: reduce) {
         .entry-music-icon,
-        .entry-music-icon .music-bar {
+        .entry-music-icon .music-bar,
+        .discord-join,
+        .discord-join::before {
           animation: none;
         }
       }
@@ -1339,6 +1447,41 @@
           filter: blur(var(--mobile-visual-blur)) saturate(0.9);
         }
 
+        .discord-join {
+          position: absolute;
+          left: 50%;
+          top: auto;
+          bottom: clamp(4px, 1.4svh, 16px);
+          width: clamp(106px, 29vw, 128px);
+          margin-top: 0;
+          opacity: 0.92;
+          transform: translateX(-50%);
+          animation-name: discord-mobile-float;
+          filter:
+            drop-shadow(0 0 16px rgba(0, 255, 145, 0.22))
+            drop-shadow(0 12px 22px rgba(0, 0, 0, 0.58));
+        }
+
+        .discord-join::before {
+          inset: -13%;
+        }
+
+        .discord-join:hover,
+        .discord-join:focus-visible {
+          transform: translateX(-50%) translateY(-4px) scale(1.04);
+        }
+
+        @keyframes discord-mobile-float {
+          0%,
+          100% {
+            transform: translateX(-50%) translateY(0) scale(1);
+          }
+
+          48% {
+            transform: translateX(-50%) translateY(-5px) scale(1.018);
+          }
+        }
+
         .visual::before,
         .page[data-layout="orbit"] .visual::before {
           inset: 28px;
@@ -1493,6 +1636,9 @@
             <canvas class="visual-canvas" id="visual-canvas" width="900" height="900"></canvas>
           </div>
         </aside>
+        <a class="discord-join" href="https://discord.gg/HfrdkT3FjE" target="_blank" rel="noopener noreferrer" aria-label="Join DENO AI Lounge Discord">
+          <img src="assets/discord-imp-mascot.png" alt="" decoding="async" fetchpriority="high">
+        </a>
 
         <aside class="tools-panel" id="tools-panel" hidden aria-label="DENO Tools">
           <div class="tools-panel-head">
