@@ -37,7 +37,7 @@
         --tune-visual-scale: 1;
         --tune-visual-width: 0px;
         --tune-visual-height: 0px;
-        --mobile-brand-y: 51px;
+        --mobile-brand-y: 24px;
         --mobile-stage-y: -103px;
         --mobile-menu-y: 0px;
         --mobile-menu-width: 340px;
@@ -285,6 +285,11 @@
       html.is-booting .site-footer {
         visibility: hidden;
         opacity: 0;
+      }
+
+      html.is-menu-panel-open,
+      html.is-menu-panel-open body {
+        overflow: hidden;
       }
 
       .brand {
@@ -604,7 +609,7 @@
 
       .discord-modal-card {
         position: relative;
-        width: min(390px, calc(100vw - 44px));
+        width: min(390px, calc(100vw - 48px));
         padding: 26px;
         color: var(--text);
         border: 1px solid rgba(0, 255, 145, 0.38);
@@ -1076,6 +1081,10 @@
         transform: translate(-50%, -50%) scale(1);
       }
 
+      #comfyui-panel {
+        width: min(660px, 54vw);
+      }
+
       .tools-panel[hidden] {
         display: block;
       }
@@ -1130,6 +1139,127 @@
       .tool-link span {
         color: rgba(218, 224, 220, 0.68);
         font: 12px/1.42 "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .comfy-cloud-link {
+        position: relative;
+        min-height: 190px;
+        grid-template-columns: minmax(0, 1fr) 188px;
+        align-items: center;
+        column-gap: 22px;
+        border-color: rgba(0, 255, 145, 0.42);
+        background:
+          radial-gradient(circle at 86% 24%, rgba(0, 255, 145, 0.16), transparent 32%),
+          linear-gradient(90deg, rgba(0, 255, 145, 0.09), rgba(0, 0, 0, 0.44));
+      }
+
+      .comfy-cloud-link:hover {
+        border-color: rgba(0, 255, 145, 0.7);
+        background:
+          radial-gradient(circle at 86% 24%, rgba(0, 255, 145, 0.22), transparent 34%),
+          linear-gradient(90deg, rgba(0, 255, 145, 0.13), rgba(0, 0, 0, 0.4));
+      }
+
+      .comfy-cloud-copy {
+        display: grid;
+        gap: 9px;
+        min-width: 0;
+      }
+
+      .comfy-cloud-link strong {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .comfy-cloud-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 0 8px;
+        border: 1px solid rgba(0, 255, 145, 0.35);
+        border-radius: 999px;
+        color: var(--green);
+        background: rgba(0, 0, 0, 0.36);
+        font: 800 10px/1 "Cascadia Mono", "Consolas", monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .gpu-card-visual {
+        position: relative;
+        width: 188px;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        color: var(--green);
+        border: 1px solid rgba(0, 255, 145, 0.36);
+        background: rgba(0, 0, 0, 0.54);
+        box-shadow:
+          inset 0 0 24px rgba(0, 255, 145, 0.08),
+          0 0 26px rgba(0, 255, 145, 0.12);
+        overflow: hidden;
+      }
+
+      .gpu-card-visual::before,
+      .gpu-card-visual::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        inset: 6px;
+        border: 1px solid rgba(0, 255, 145, 0.18);
+        pointer-events: none;
+      }
+
+      .gpu-card-visual::after {
+        inset: auto 10px 8px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0, 255, 145, 0.72), transparent);
+        border: 0;
+      }
+
+      .gpu-card-visual img {
+        position: relative;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .comfy-cloud-spec,
+      .comfy-cloud-note,
+      .comfy-cloud-action {
+        display: block;
+        font-family: "Cascadia Mono", "Consolas", monospace;
+      }
+
+      .comfy-cloud-spec {
+        color: rgba(243, 247, 242, 0.82);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .comfy-cloud-note {
+        color: rgba(218, 224, 220, 0.52);
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      .comfy-cloud-action {
+        width: fit-content;
+        margin-top: 4px;
+        padding: 9px 12px;
+        color: #021009;
+        background: var(--green);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow: 0 0 18px rgba(0, 255, 145, 0.18);
       }
 
       .font-lab {
@@ -1664,23 +1794,51 @@
 
         .tools-panel {
           position: fixed !important;
-          left: 14px !important;
-          right: 14px !important;
-          top: 50% !important;
-          width: calc(100vw - 28px) !important;
-          max-width: calc(100vw - 28px);
-          max-height: calc(100svh - 34px);
+          z-index: 100;
+          left: 50% !important;
+          right: auto !important;
+          top: clamp(52px, 8svh, 76px) !important;
+          bottom: 14px !important;
+          width: min(560px, calc(100vw - 32px)) !important;
+          max-width: calc(100vw - 32px);
+          height: auto;
+          max-height: none;
           box-sizing: border-box;
           padding: 14px;
           overflow: auto;
           background:
-            linear-gradient(180deg, rgba(0, 255, 145, 0.08), transparent 46%),
-            rgba(0, 6, 4, 0.93);
-          transform: translateY(-50%) scale(0.96);
+            linear-gradient(180deg, rgba(0, 255, 145, 0.06), transparent 46%),
+            rgba(0, 6, 4, 0.985);
+          box-shadow:
+            0 0 0 100vmax rgba(0, 0, 0, 0.5),
+            0 0 42px rgba(0, 255, 145, 0.14),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+          transform: translateX(-50%) scale(0.96);
+        }
+
+        body.is-menu-panel-open .page {
+          z-index: 90;
+        }
+
+        body.is-menu-panel-open .stage {
+          transform: none !important;
+        }
+
+        body.is-menu-panel-open .brand,
+        body.is-menu-panel-open .youtube-mark,
+        body.is-menu-panel-open .audio-control,
+        body.is-menu-panel-open .site-footer {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        #comfyui-panel {
+          width: min(560px, calc(100vw - 32px)) !important;
         }
 
         .tools-panel.is-open {
-          transform: translateY(-50%) scale(1);
+          transform: translateX(-50%) scale(1);
         }
 
         .tool-link-list {
@@ -1711,6 +1869,59 @@
           max-width: min(270px, calc(100vw - 104px));
           white-space: normal;
           overflow-wrap: anywhere;
+        }
+
+        .comfy-cloud-link strong {
+          max-width: none;
+        }
+
+        .comfy-cloud-link {
+          grid-template-columns: 1fr;
+          gap: 10px;
+          min-height: 0;
+          background:
+            radial-gradient(circle at 86% 24%, rgba(0, 255, 145, 0.12), transparent 32%),
+            linear-gradient(90deg, rgba(0, 255, 145, 0.08), rgba(0, 0, 0, 0.88));
+        }
+
+        .comfy-cloud-link .gpu-card-visual {
+          display: none;
+        }
+
+        .comfy-cloud-badge {
+          min-height: 20px;
+          font-size: 9px;
+        }
+
+        .comfy-cloud-spec,
+        .comfy-cloud-note,
+        .comfy-cloud-action {
+          max-width: min(270px, calc(100vw - 104px));
+        }
+
+        @media (max-height: 720px) {
+          .tools-panel {
+            top: 34px !important;
+            bottom: 10px !important;
+            transform: translateX(-50%) scale(0.96);
+          }
+
+          .tools-panel.is-open {
+            transform: translateX(-50%) scale(1);
+          }
+
+          .tool-link {
+            min-height: 66px;
+            padding: 10px 12px;
+          }
+
+          .comfy-cloud-copy {
+            gap: 6px;
+          }
+
+          .gpu-card-visual {
+            width: min(100%, 176px);
+          }
         }
 
         .font-lab {
@@ -1799,23 +2010,6 @@
         <button class="discord-join" type="button" aria-label="Open DENO Discord invite" aria-haspopup="dialog" aria-controls="discord-modal" aria-expanded="false">
           <img src="assets/discord-imp-mascot.png" alt="" decoding="async" fetchpriority="high">
         </button>
-        <div class="discord-modal-backdrop" id="discord-modal" role="dialog" aria-modal="true" aria-labelledby="discord-modal-title" aria-describedby="discord-modal-copy" hidden>
-          <section class="discord-modal-card" role="document">
-            <button class="discord-modal-close" id="discord-modal-close" type="button" aria-label="Close Discord invite">&times;</button>
-            <div class="discord-modal-top">
-              <div class="discord-modal-mascot" aria-hidden="true">
-                <img src="assets/discord-imp-mascot.png" alt="" decoding="async">
-              </div>
-              <span class="discord-badge" aria-hidden="true">D</span>
-            </div>
-            <h2 class="discord-modal-title" id="discord-modal-title">DENO Discord Lounge</h2>
-            <p class="discord-modal-copy" id="discord-modal-copy">Join the community space for DENO tools, updates, and creator workflow notes.</p>
-            <div class="discord-modal-actions">
-              <a class="discord-modal-primary" id="discord-modal-join" href="https://discord.gg/HfrdkT3FjE" target="_blank" rel="noopener noreferrer">Join Discord</a>
-              <button class="discord-modal-secondary" id="discord-modal-cancel" type="button">Not now</button>
-            </div>
-          </section>
-        </div>
 
         <aside class="tools-panel" id="tools-panel" hidden aria-label="DENO Tools">
           <div class="tools-panel-head">
@@ -1848,6 +2042,18 @@
             <button class="tools-panel-close" id="comfyui-panel-close" type="button" aria-label="Close ComfyUI panel">×</button>
           </div>
           <div class="tool-link-list">
+            <a class="tool-link comfy-cloud-link" href="https://www.comfy.org/?via=67372a" target="_blank" rel="noopener noreferrer" data-tool="comfy-cloud">
+              <span class="comfy-cloud-copy">
+                <strong>Comfy Cloud <i class="comfy-cloud-badge">Official Cloud</i></strong>
+                <span>Run heavy ComfyUI workflows without local VRAM pressure.</span>
+                <small class="comfy-cloud-spec">RTX Pro 6000 / 96GB VRAM</small>
+                <small class="comfy-cloud-note">Referral link. Deno may receive a commission; no extra cost to viewers.</small>
+                <em class="comfy-cloud-action">Open Comfy Cloud</em>
+              </span>
+              <span class="gpu-card-visual" aria-hidden="true">
+                <img src="assets/comfy-cloud-96gb-vram.png" alt="" decoding="async">
+              </span>
+            </a>
             <a class="tool-link" href="https://drive.google.com/drive/u/0/folders/1Aq9yzvSMpM9EOQMIVEIwyrXd3LmcM5D6" target="_blank" rel="noreferrer" data-tool="comfyui-workflow">
               <strong>Workflow</strong>
               <span>Google Drive</span>
@@ -1861,6 +2067,24 @@
 
       </section>
     </main>
+
+    <div class="discord-modal-backdrop" id="discord-modal" role="dialog" aria-modal="true" aria-labelledby="discord-modal-title" aria-describedby="discord-modal-copy" hidden>
+      <section class="discord-modal-card" role="document">
+        <button class="discord-modal-close" id="discord-modal-close" type="button" aria-label="Close Discord invite">&times;</button>
+        <div class="discord-modal-top">
+          <div class="discord-modal-mascot" aria-hidden="true">
+            <img src="assets/discord-imp-mascot.png" alt="" decoding="async">
+          </div>
+          <span class="discord-badge" aria-hidden="true">D</span>
+        </div>
+        <h2 class="discord-modal-title" id="discord-modal-title">DENO Discord Lounge</h2>
+        <p class="discord-modal-copy" id="discord-modal-copy">Join the community space for DENO tools, updates, and creator workflow notes.</p>
+        <div class="discord-modal-actions">
+          <a class="discord-modal-primary" id="discord-modal-join" href="https://discord.gg/HfrdkT3FjE" target="_blank" rel="noopener noreferrer">Join Discord</a>
+          <button class="discord-modal-secondary" id="discord-modal-cancel" type="button">Not now</button>
+        </div>
+      </section>
+    </div>
 
     <aside class="font-lab" aria-label="Background font lab">
       <div class="font-lab-head">
@@ -1890,8 +2114,8 @@
           <label class="font-field">
             Logo Y
             <span class="font-row">
-              <input id="mobile-brand-y" type="range" min="-160" max="220" step="1" value="51">
-              <output id="mobile-brand-y-output">51</output>
+              <input id="mobile-brand-y" type="range" min="-160" max="220" step="1" value="24">
+              <output id="mobile-brand-y-output">24</output>
             </span>
           </label>
           <label class="font-field">
@@ -2446,7 +2670,7 @@
           stage: { x: 0, y: 0, scale: 1, width: 0, height: 0 }
         };
         const defaultMobileTuning = {
-          brandY: 51,
+          brandY: 24,
           stageY: -103,
           menuY: 0,
           menuWidth: 340,
@@ -2499,7 +2723,7 @@
             stage: { x: 0, y: 0, scale: 1, width: 0, height: 0 }
           },
           mobileTuning: {
-            brandY: 51,
+            brandY: 24,
             stageY: -103,
             menuY: 0,
             menuWidth: 340,
@@ -2891,14 +3115,22 @@
           updateVisualChoiceMarks();
         }
 
+        function syncMenuPanelOpenState() {
+          const panelOpen = [toolsPanel, comfyPanel].some((panel) => panel?.classList.contains("is-open"));
+          document.documentElement.classList.toggle("is-menu-panel-open", panelOpen);
+          document.body.classList.toggle("is-menu-panel-open", panelOpen);
+        }
+
         function setMenuPanel(panel, entry, open) {
           panel.hidden = false;
           panel.classList.toggle("is-open", open);
           entry.classList.toggle("is-tool-active", open);
           entry.setAttribute("aria-expanded", open ? "true" : "false");
+          syncMenuPanelOpenState();
           if (!open) {
             window.setTimeout(() => {
               if (!panel.classList.contains("is-open")) panel.hidden = true;
+              syncMenuPanelOpenState();
             }, 180);
           }
         }
